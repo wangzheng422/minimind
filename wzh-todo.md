@@ -40,3 +40,9 @@
 - DONE Review the final diff and resolve the audit-completeness finding.
 - DONE Commit the verified round 5 changes automatically.
 - DONE Preserve complete round 5 evidence and final artifacts.
+
+## round 6
+
+- DONE Make the notebook runnable on the active L4 without requiring an A100.
+- DONE Add an L4-safe Zero-model batch default and regression coverage.
+- DONE Commit the verified accelerator-profile adjustment after review fixes are applied.

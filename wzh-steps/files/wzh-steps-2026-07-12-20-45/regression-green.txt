@@ -1,0 +1,15 @@
+test_preflight_bf16_guidance_accepts_l4_and_a100 (test_minimind_colab.CommandSetupTests.test_preflight_bf16_guidance_accepts_l4_and_a100) ... ok
+test_repairs_partial_venv_by_using_external_pip (test_minimind_colab.CommandSetupTests.test_repairs_partial_venv_by_using_external_pip) ... ok
+test_l4_profile_does_not_require_a100_and_uses_safe_zero_batch (test_minimind_colab.NotebookSetupCellTests.test_l4_profile_does_not_require_a100_and_uses_safe_zero_batch) ... ok
+test_non_git_root_stops_before_setup (test_minimind_colab.NotebookSetupCellTests.test_non_git_root_stops_before_setup) ... ok
+test_repository_setup_cell_is_cli_only_and_repeatable (test_minimind_colab.NotebookSetupCellTests.test_repository_setup_cell_is_cli_only_and_repeatable) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.014s
+
+OK
+{
+  "venv_python": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmp4rjpkbyv/.colab-venv/bin/python",
+  "next": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmp4rjpkbyv/.colab-venv/bin/python colab/minimind_colab.py preflight"
+}
+exit_code=0
