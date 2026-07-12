@@ -24,9 +24,7 @@ The runner has two profiles:
 | `micro` | Observe the mechanics cheaply and quickly | 256 hidden, 4 layers | First 2,048 non-empty records from each official mini JSONL |
 | `zero` | Reproduce the repository's recommended MiniMind Zero path | 768 hidden, 8 layers | Official `pretrain_t2t_mini.jsonl` and `sft_t2t_mini.jsonl` |
 
-`setup` creates `.colab-venv` with `--without-pip --system-site-packages`. Skipping `ensurepip` avoids failures in Colab images that disable it, while system site packages expose Colab's CUDA-enabled PyTorch. Because Colab's pip is not guaranteed to be importable from the new venv, setup uses the host `pip --python <venv-python>` interface to install pip and this repository's pinned dependencies into the venv. Re-running setup reuses and repairs the existing environment. `zero` is still a real data-and-GPU job: run it only after the full micro route succeeds.
-
-The notebook's repository cell is repeatable. It clones only when `ROOT` is absent; otherwise it verifies that `ROOT` is a Git checkout, fetches `REPOSITORY_REF`, and checks out the fetched revision without deleting `.colab-venv`, downloaded data, checkpoints, or outputs.
+`setup` creates `.colab-venv` with `--without-pip --system-site-packages`. Skipping `ensurepip` avoids failures in Colab images that disable it, while system site packages expose Colab's existing pip and CUDA-enabled PyTorch inside the environment. The runner then installs this repository's pinned Python dependencies. `zero` is still a real data-and-GPU job: run it only after the full micro route succeeds.
 
 The `train` command delegates to `trainer/train_pretrain.py` and `trainer/train_full_sft.py`. Checkpoints continue to use the repository's `checkpoints/` convention, while weights are saved in `out/`. The notebook always passes native `--resume`: on a new run there is no checkpoint and training starts normally; after Drive restoration it resumes the matching stage. `--compile` is opt-in so the first run separates model/data problems from TorchInductor compilation.
 

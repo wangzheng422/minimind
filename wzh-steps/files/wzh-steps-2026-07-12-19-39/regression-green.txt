@@ -1,0 +1,12 @@
+test_repairs_partial_venv_by_using_external_pip (test_minimind_colab.CommandSetupTests.test_repairs_partial_venv_by_using_external_pip) ... ok
+test_repository_clone_is_guarded_for_repeated_cell_execution (test_minimind_colab.NotebookSetupCellTests.test_repository_clone_is_guarded_for_repeated_cell_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.002s
+
+OK
+{
+  "venv_python": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpqoxgr1r8/.colab-venv/bin/python",
+  "next": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpqoxgr1r8/.colab-venv/bin/python colab/minimind_colab.py preflight"
+}
+exit_code=0

@@ -1,0 +1,10 @@
+test_repairs_partial_venv_without_ensurepip_and_uses_visible_pip (test_minimind_colab.CommandSetupTests.test_repairs_partial_venv_without_ensurepip_and_uses_visible_pip) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+OK
+{
+  "venv_python": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpckx0nvsj/.colab-venv/bin/python",
+  "next": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpckx0nvsj/.colab-venv/bin/python colab/minimind_colab.py preflight"
+}

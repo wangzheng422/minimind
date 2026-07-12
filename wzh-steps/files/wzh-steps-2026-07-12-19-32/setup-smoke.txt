@@ -1,0 +1,4 @@
+{
+  "venv_python": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpyvhqtkbf/.colab-venv/bin/python",
+  "next": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpyvhqtkbf/.colab-venv/bin/python colab/minimind_colab.py preflight"
+}

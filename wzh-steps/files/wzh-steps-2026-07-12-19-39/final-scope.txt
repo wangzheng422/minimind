@@ -1,0 +1,19 @@
+ M colab/README.md
+ M colab/minimind_colab.py
+ M colab/minimind_colab_learning.ipynb
+ M wzh-todo.md
+?? tests/
+?? wzh-solution/files/wzh-solution-2026-07-12-19-32/
+?? wzh-solution/files/wzh-solution-2026-07-12-19-39/
+?? wzh-solution/wzh-solution-2026.07.12.19.32.md
+?? wzh-solution/wzh-solution-2026.07.12.19.39.md
+?? wzh-steps/files/wzh-steps-2026-07-12-19-32/
+?? wzh-steps/files/wzh-steps-2026-07-12-19-39/
+?? wzh-steps/wzh-steps-2026.07.12.19.32.md
+?? wzh-steps/wzh-steps-2026.07.12.19.39.md
+ colab/README.md                     |  4 +++-
+ colab/minimind_colab.py             | 12 ++++++++++--
+ colab/minimind_colab_learning.ipynb | 26 +++++++++++++++++++++++---
+ wzh-todo.md                         | 15 +++++++++++++++
+ 4 files changed, 51 insertions(+), 6 deletions(-)
+exit_code=0

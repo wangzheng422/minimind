@@ -76,17 +76,11 @@ def profile_data(root: Path, name: str, stage: str) -> Path:
 def command_setup(args: argparse.Namespace, root: Path) -> None:
     venv = Path(args.venv).expanduser().resolve() if args.venv else root / ".colab-venv"
     venv_python = venv / "bin" / "python"
-    if not venv_python.exists():
-        subprocess.run(
-            [sys.executable, "-m", "venv", "--without-pip", "--system-site-packages", str(venv)],
-            check=True,
-        )
-    host_pip = shutil.which("pip")
-    pip_command = [host_pip] if host_pip else [sys.executable, "-m", "pip"]
     subprocess.run(
-        [*pip_command, "--python", str(venv_python), "install", "--upgrade", "pip", "-r", str(root / "requirements.txt")],
+        [sys.executable, "-m", "venv", "--without-pip", "--system-site-packages", str(venv)],
         check=True,
     )
+    subprocess.run([str(venv_python), "-m", "pip", "install", "--upgrade", "-r", str(root / "requirements.txt")], check=True)
     print(json.dumps({"venv_python": str(venv_python), "next": f"{venv_python} colab/minimind_colab.py preflight"}, ensure_ascii=False, indent=2))
 
 

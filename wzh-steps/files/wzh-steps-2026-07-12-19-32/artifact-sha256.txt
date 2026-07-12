@@ -1,0 +1,3 @@
+4bf06055e214b49eec95a1e2bfdaed8021aacc9e9fe5b992c7e6e6d8a9488ca7  colab/minimind_colab.py
+f36a8d7f06de95966aa84a9f963d88501ef7bfbfbdc6aa527894ec61819b2abe  colab/README.md
+0251da14709819b938553a5d8a1adc71a2dd259fc7673b182f457935f3125788  tests/test_minimind_colab.py

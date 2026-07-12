@@ -1,0 +1,18 @@
+test_repairs_partial_venv_without_ensurepip_and_uses_visible_pip (test_minimind_colab.CommandSetupTests.test_repairs_partial_venv_without_ensurepip_and_uses_visible_pip) ... FAIL
+
+======================================================================
+FAIL: test_repairs_partial_venv_without_ensurepip_and_uses_visible_pip (test_minimind_colab.CommandSetupTests.test_repairs_partial_venv_without_ensurepip_and_uses_visible_pip)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/zhengwan/Desktop/dev/minimind/tests/test_minimind_colab.py", line 30, in test_repairs_partial_venv_without_ensurepip_and_uses_visible_pip
+    self.assertEqual(
+AssertionError: [call[96 chars]', '/private/var/folders/mz/czdbtvx96p9by6mpxg[289 chars]rue)] != [call[96 chars]', '/var/folders/mz/czdbtvx96p9by6mpxgvkck1h00[272 chars]rue)]
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)
+{
+  "venv_python": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpjyjbu8hh/.colab-venv/bin/python",
+  "next": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpjyjbu8hh/.colab-venv/bin/python colab/minimind_colab.py preflight"
+}

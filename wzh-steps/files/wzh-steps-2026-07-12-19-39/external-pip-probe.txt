@@ -1,0 +1,3 @@
+pip 25.0 from /opt/anaconda3/envs/py312/lib/python3.12/site-packages/pip (python 3.12)
+pipless_venv=/private/tmp/minimind-pipless.RbgGtL
+exit_code=0

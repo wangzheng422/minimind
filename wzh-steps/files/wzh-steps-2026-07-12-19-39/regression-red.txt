@@ -1,0 +1,31 @@
+test_repairs_partial_venv_by_using_external_pip (test_minimind_colab.CommandSetupTests.test_repairs_partial_venv_by_using_external_pip) ... FAIL
+test_repository_clone_is_guarded_for_repeated_cell_execution (test_minimind_colab.NotebookSetupCellTests.test_repository_clone_is_guarded_for_repeated_cell_execution) ... FAIL
+
+======================================================================
+FAIL: test_repairs_partial_venv_by_using_external_pip (test_minimind_colab.CommandSetupTests.test_repairs_partial_venv_by_using_external_pip)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/anaconda3/envs/py312/lib/python3.12/unittest/mock.py", line 1396, in patched
+    return func(*newargs, **newkeywargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/zhengwan/Desktop/dev/minimind/tests/test_minimind_colab.py", line 32, in test_repairs_partial_venv_by_using_external_pip
+    self.assertEqual(
+AssertionError: [call(['/opt/anaconda3/envs/py312/bin/python', '-m[386 chars]rue)] != [call(['/usr/local/bin/pip', '--python', '/private[212 chars]rue)]
+
+======================================================================
+FAIL: test_repository_clone_is_guarded_for_repeated_cell_execution (test_minimind_colab.NotebookSetupCellTests.test_repository_clone_is_guarded_for_repeated_cell_execution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/zhengwan/Desktop/dev/minimind/tests/test_minimind_colab.py", line 61, in test_repository_clone_is_guarded_for_repeated_cell_execution
+    self.assertIn("if not root.exists():", setup_source)
+AssertionError: 'if not root.exists():' not found in "!git clone --depth 1 --branch {REPOSITORY_REF} {REPOSITORY_URL} {ROOT}\n%cd {ROOT}\n!python colab/minimind_colab.py setup\nCOLAB_PYTHON = f'{ROOT}/.colab-venv/bin/python'\n"
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.003s
+
+FAILED (failures=2)
+{
+  "venv_python": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpv187rxnt/.colab-venv/bin/python",
+  "next": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpv187rxnt/.colab-venv/bin/python colab/minimind_colab.py preflight"
+}
+exit_code=1
