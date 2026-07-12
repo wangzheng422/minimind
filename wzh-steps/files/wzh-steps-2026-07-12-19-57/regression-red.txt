@@ -1,0 +1,20 @@
+test_repairs_partial_venv_by_using_external_pip (test_minimind_colab.CommandSetupTests.test_repairs_partial_venv_by_using_external_pip) ... ok
+test_repository_setup_cell_is_cli_only_and_repeatable (test_minimind_colab.NotebookSetupCellTests.test_repository_setup_cell_is_cli_only_and_repeatable) ... FAIL
+
+======================================================================
+FAIL: test_repository_setup_cell_is_cli_only_and_repeatable (test_minimind_colab.NotebookSetupCellTests.test_repository_setup_cell_is_cli_only_and_repeatable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/zhengwan/Desktop/dev/minimind/tests/test_minimind_colab.py", line 62, in test_repository_setup_cell_is_cli_only_and_repeatable
+    self.assertIn("COLAB_PYTHON =", config_source)
+AssertionError: 'COLAB_PYTHON =' not found in "# Set these to the branch that contains this colab/ directory.\nREPOSITORY_URL = 'https://github.com/wangzheng422/minimind.git'\nREPOSITORY_REF = 'wzh-main'\nROOT = '/content/minimind'\nRUN_ZERO_PROFILE = False\nRUN_TOKENIZER_EXPERIMENT = False\nUSE_GOOGLE_DRIVE = True\nDRIVE_DIR = '/content/drive/MyDrive/colab/minimind/'\n"
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.009s
+
+FAILED (failures=1)
+{
+  "venv_python": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmp6t_rqphd/.colab-venv/bin/python",
+  "next": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmp6t_rqphd/.colab-venv/bin/python colab/minimind_colab.py preflight"
+}
+exit_code=1

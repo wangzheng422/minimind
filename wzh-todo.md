@@ -22,3 +22,12 @@
 - DONE Make repository preparation and environment setup safely repeatable in Colab.
 - DONE Validate external pip targeting of a pip-less venv and notebook idempotency.
 - DONE Preserve the supplied failure, full command evidence, final artifacts, and corrected conclusion.
+
+## round 4
+
+- DONE Add a regression check that the repository/setup cell contains CLI commands only.
+- DONE Move derived runtime variables to the configuration cell and remove Python control flow from setup.
+- DONE Validate the notebook and run the full focused test suite.
+- DONE Review the final diff and address fail-fast and audit-accuracy findings.
+- DONE Commit the verified round 4 changes automatically.
+- DONE Preserve the supplied notebook output and complete round 4 evidence.

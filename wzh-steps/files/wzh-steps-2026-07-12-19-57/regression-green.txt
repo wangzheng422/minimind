@@ -1,0 +1,13 @@
+test_repairs_partial_venv_by_using_external_pip (test_minimind_colab.CommandSetupTests.test_repairs_partial_venv_by_using_external_pip) ... ok
+test_non_git_root_stops_before_setup (test_minimind_colab.NotebookSetupCellTests.test_non_git_root_stops_before_setup) ... ok
+test_repository_setup_cell_is_cli_only_and_repeatable (test_minimind_colab.NotebookSetupCellTests.test_repository_setup_cell_is_cli_only_and_repeatable) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.018s
+
+OK
+{
+  "venv_python": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpkw1sdx5d/.colab-venv/bin/python",
+  "next": "/private/var/folders/mz/czdbtvx96p9by6mpxgvkck1h0000gn/T/tmpkw1sdx5d/.colab-venv/bin/python colab/minimind_colab.py preflight"
+}
+exit_code=0
