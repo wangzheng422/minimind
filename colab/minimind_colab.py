@@ -265,7 +265,7 @@ def command_one_step(args: argparse.Namespace, root: Path) -> None:
         "device": device,
         "batch_shape": list(input_ids.shape),
         "logits_shape": list(output.logits.shape),
-        "loss_before": float(loss_before),
+        "loss_before": float(loss_before.detach()),
         "grad_norm_before_clip": grad_norm,
         "loss_after_same_batch": float(loss_after),
         "peak_gpu_memory_gib": round(torch.cuda.max_memory_allocated(device) / 1024 ** 3, 3) if device.startswith("cuda") else None,
@@ -338,7 +338,12 @@ def command_tokenizer_experiment(args: argparse.Namespace, root: Path) -> None:
 
 
 def command_infer(args: argparse.Namespace, root: Path) -> None:
-    torch, tokenizer, model, _ = make_model(root, args.profile, args.stage, args.device or ("cuda" if torch.cuda.is_available() else "cpu"), load_weight=True)
+    if args.device:
+        runtime_device = args.device
+    else:
+        import torch as runtime_torch
+        runtime_device = "cuda" if runtime_torch.cuda.is_available() else "cpu"
+    torch, tokenizer, model, _ = make_model(root, args.profile, args.stage, runtime_device, load_weight=True)
     device = next(model.parameters()).device
     model.eval()
     if args.stage == "pretrain":

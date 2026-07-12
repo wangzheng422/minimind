@@ -23,6 +23,18 @@ class CommandSetupTests(unittest.TestCase):
         self.assertIn("PretrainDataset(str(data_path), tokenizer", source)
         self.assertIn("dataset_class(str(data_path), tokenizer", source)
 
+    def test_inference_does_not_reference_a_locally_shadowed_torch(self):
+        source = RUNNER_PATH.read_text(encoding="utf-8")
+        inference_source = source.split("def command_infer", 1)[1].split("def copy_changed", 1)[0]
+
+        self.assertNotIn('args.device or ("cuda" if torch.cuda.is_available() else "cpu")', inference_source)
+        self.assertIn("import torch as runtime_torch", inference_source)
+
+    def test_one_step_detaches_metrics_before_float_conversion(self):
+        source = RUNNER_PATH.read_text(encoding="utf-8")
+
+        self.assertIn('"loss_before": float(loss_before.detach())', source)
+
     def test_preflight_bf16_guidance_accepts_l4_and_a100(self):
         source = RUNNER_PATH.read_text(encoding="utf-8")
 
