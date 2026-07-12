@@ -17,6 +17,12 @@ SPEC.loader.exec_module(RUNNER)
 
 
 class CommandSetupTests(unittest.TestCase):
+    def test_dataset_loaders_receive_strings_not_path_objects(self):
+        source = RUNNER_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("PretrainDataset(str(data_path), tokenizer", source)
+        self.assertIn("dataset_class(str(data_path), tokenizer", source)
+
     def test_preflight_bf16_guidance_accepts_l4_and_a100(self):
         source = RUNNER_PATH.read_text(encoding="utf-8")
 

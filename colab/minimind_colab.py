@@ -218,7 +218,7 @@ def command_lesson(args: argparse.Namespace, root: Path) -> None:
     stage = "pretrain" if args.topic == "pretrain-labels" else "sft"
     data_path = profile_data(root, args.profile, stage)
     require_file(data_path, "download --all" if args.profile == "zero" else f"make-micro --rows {args.rows}")
-    dataset = PretrainDataset(data_path, tokenizer, max_length=settings["max_seq_len"]) if stage == "pretrain" else SFTDataset(data_path, tokenizer, max_length=settings["max_seq_len"])
+    dataset = PretrainDataset(str(data_path), tokenizer, max_length=settings["max_seq_len"]) if stage == "pretrain" else SFTDataset(str(data_path), tokenizer, max_length=settings["max_seq_len"])
     input_ids, labels = dataset[args.index]
     rows = []
     for position in range(min(args.rows, input_ids.numel() - 1)):
@@ -240,7 +240,7 @@ def command_one_step(args: argparse.Namespace, root: Path) -> None:
     require_file(data_path, "download --all" if args.profile == "zero" else f"make-micro --rows {args.rows}")
     tokenizer = AutoTokenizer.from_pretrained(root / "model")
     dataset_class = PretrainDataset if args.stage == "pretrain" else SFTDataset
-    dataset = dataset_class(data_path, tokenizer, max_length=settings["max_seq_len"])
+    dataset = dataset_class(str(data_path), tokenizer, max_length=settings["max_seq_len"])
     batch = [dataset[index] for index in range(min(settings["batch_size"], len(dataset)))]
     input_ids = torch.stack([item[0] for item in batch]).to(device)
     labels = torch.stack([item[1] for item in batch]).to(device)
