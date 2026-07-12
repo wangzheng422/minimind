@@ -1,0 +1,1467 @@
+<div align="center">
+
+![logo](./images/logo.png)
+
+</div>
+
+<div align="center">
+
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=jingyaogong/minimind)
+[![GitHub Repo stars](https://img.shields.io/github/stars/jingyaogong/minimind?style=social)](https://github.com/jingyaogong/minimind/stargazers)
+[![GitHub Code License](https://img.shields.io/github/license/jingyaogong/minimind)](LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/jingyaogong/minimind)](https://github.com/jingyaogong/minimind/commits/master)
+[![GitHub pull request](https://img.shields.io/badge/PRs-welcome-blue)](https://github.com/jingyaogong/minimind/pulls)
+[![Collection](https://img.shields.io/badge/🤗-MiniMind%20%20Collection-blue)](https://huggingface.co/collections/jingyaogong/minimind-66caf8d999f5c7fa64f399e5)
+
+</div>
+
+<div align="center">
+
+![GitHub Trend](https://trendshift.io/api/badge/repositories/12586)
+
+</div>
+
+<div align="center">
+  <h3>"The Great Way is Simple"</h3>
+</div>
+
+<div align="center">
+
+[中文](./README.md) | English
+
+</div>
+
+* This open-source project aims to train MiniMind, an ultra-small language model with about 64M parameters, entirely from scratch with only about RMB 3 in cost and 2 hours of training time.
+* The MiniMind series is intentionally lightweight. The smallest model on the main branch is about $\frac{1}{2700}$ the size of GPT-3, making full training and reproduction feasible even on ordinary personal GPUs.
+* The project provides a minimalist model architecture and an end-to-end LLM training pipeline, covering MoE, data cleaning, pretraining, Supervised Fine-Tuning (SFT), LoRA, RLHF (DPO), RLAIF (PPO / GRPO / CISPO), Tool Use, Agentic RL, Adaptive Thinking, and Model Distillation.
+* MiniMind has also been extended to a vision model [MiniMind-V](https://github.com/jingyaogong/minimind-v), a multimodal Omni model [MiniMind-O](https://github.com/jingyaogong/minimind-o), a diffusion language model (MiniMind-dLM), and a linear attention model (MiniMind-Linear). See [Discussion](https://github.com/jingyaogong/minimind/discussions) for details.
+* All core algorithms are implemented directly in native PyTorch, without relying on high-level abstractions from third-party libraries.
+* MiniMind is both an end-to-end open-source reproduction of the LLM training pipeline and a hands-on tutorial for learning how LLMs are built.
+* We hope this project can provide a reproducible, understandable, and extensible starting point for more people, share the joy of creation, and help move the broader AI community forward.
+
+> Note: This project is released under the Apache 2.0 license and is completely free. "2 hours" refers to the measured time for running `1 epoch` of the SFT stage on a single NVIDIA 3090, while "RMB 3" refers to the corresponding GPU rental cost.
+
+---
+
+<div align="center">
+
+![minimind-3](./images/minimind-3.gif)
+
+[🔗 Online Demo](https://www.modelscope.cn/studios/gongjy/MiniMind) | [🔗 Video Introduction](https://www.bilibili.com/video/BV12dHPeqE72)
+
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <a href="https://huggingface.co/collections/jingyaogong/minimind" style="text-decoration: none;">
+          <img src="./images/with_huggingface.png" alt="Hugging Face Logo" style="vertical-align: middle; width: auto; max-width: 100%;" />
+        </a>
+      </td>
+      <td align="center">
+        <a href="https://www.modelscope.cn/profile/gongjy" style="text-decoration: none;">
+          <img src="./images/with_modelscope.png" alt="ModelScope Logo" style="vertical-align: middle; width: auto; max-width: 100%;" />
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+</div>
+
+---
+
+# 📌 Project Introduction
+
+The emergence of Large Language Models (LLMs) has drawn unprecedented global attention to AI. ChatGPT, DeepSeek, Qwen, and many other models have impressed people with their remarkable performance, making the impact of this technological wave feel very real. However, models with tens or hundreds of billions of parameters are not only difficult to train on personal devices, but often out of reach even for deployment. Opening the "black box" of large models and truly understanding how they work internally should have been an exciting thing. Unfortunately, most explorations eventually stop at applying techniques such as LoRA to fine-tune existing large models on a few new instructions or specific tasks. This is more like teaching Newton how to use a 21st-century smartphone — interesting, but not quite the original goal of understanding the essence of physics.
+
+At the same time, third-party LLM frameworks and toolkits such as `transformers` / `trl` / `peft` often expose only highly abstract interfaces. With just a dozen lines of code, one can complete the entire pipeline of "load model + load dataset + inference + reinforcement learning" training. This kind of efficient encapsulation is convenient, but it also separates developers from the underlying implementation to some extent, reducing the opportunity to deeply understand the core code of LLMs. I believe that "building an airplane from Lego bricks yourself is far more exciting than flying in first class". A more practical problem is that the internet is also filled with paid courses and marketing content, where so-called AI tutorials are wrapped in flawed and half-understood explanations. For this reason, the original intention of this project is to lower the learning barrier of LLMs as much as possible, so that everyone can start from understanding every line of code and train a tiny language model by hand from scratch. Yes, **training from scratch**, not merely staying at the **inference** level. With a server cost of less than RMB 3, you can personally experience the full process of building a language model from 0 to 1.
+
+😊 Let's share the joy of creation together!
+
+---
+
+#### 🎉 This Project Includes the Following
+
+- Provides the full MiniMind-LLM architecture implementation (Dense + MoE), aligned with the `Qwen3 / Qwen3-MoE` ecosystem.
+- Provides the tokenizer and tokenizer training code, supporting template tokens such as `<tool_call>`, `<tool_response>`, `<think>`, etc.
+- Covers end-to-end training pipelines including pretraining, SFT, LoRA, RLHF-DPO, RLAIF (PPO / GRPO / CISPO), Tool Use, Agentic RL, Adaptive Thinking, and Model Distillation.
+- Provides open-source data for all stages, covering collected, distilled, cleaned, and deduplicated high-quality datasets.
+- Key training algorithms and core modules are all implemented from scratch, without relying on third-party framework wrappers.
+- Compatible with mainstream frameworks such as `transformers`, `trl`, `peft`, as well as commonly used inference engines like `llama.cpp`, `vllm`, `ollama`, and training frameworks like `Llama-Factory`.
+- Supports single-node single-GPU and single-node multi-GPU training (DDP, DeepSpeed), wandb / swanlab visualization, and dynamic training pause/resume.
+- Supports evaluation on third-party benchmark suites such as C-Eval, C-MMLU, OpenBookQA, etc., and supports RoPE long context extrapolation through YaRN.
+- Provides a lightweight OpenAI-compatible API server for integration with third-party Chat UIs such as FastGPT and Open-WebUI, with support for `reasoning_content`, `tool_calls`, and `open_thinking`.
+- Provides a minimalist chat WebUI based on Streamlit, supporting thinking display, tool selection, and multi-turn Tool Call.
+- Includes experimental extensions: diffusion language model ([dLM](https://github.com/jingyaogong/minimind/discussions/618)) and linear attention model ([Linear Attention](https://github.com/jingyaogong/minimind/discussions/704)), both of which can be further trained from the main autoregressive model.
+
+#### 🎉 Released Model List
+
+| Model | Parameters | Release |
+|------|--------|---------|
+| minimind-3 | 64M | 2026.04.01 |
+| minimind-3-moe | 198M-A64M | 2026.04.01 |
+| minimind2-small | 26M | 2025.04.26 |
+| minimind2-moe | 145M | 2025.04.26 |
+| minimind2 | 104M | 2025.04.26 |
+| minimind-v1-small | 26M | 2024.08.28 |
+| minimind-v1-moe | 4×26M | 2024.09.17 |
+| minimind-v1 | 108M | 2024.09.01 |
+
+---
+
+#### 📝 Changelog
+
+<details> 
+<summary> <b>🔥 2026-04-01</b> </summary>
+
+ - Released `minimind-3` / `minimind-3-moe`: comprehensive updates to structure, Tokenizer, training pipeline, inference interface, and default configuration
+- Main branch structure aligned with `Qwen3 / Qwen3-MoE` ecosystem: Dense approximately `64M`, MoE approximately `198M-A64M`, and removed shared expert design
+- Default training data switched to `pretrain_t2t(_mini).jsonl`, `sft_t2t(_mini).jsonl`, `rlaif.jsonl`, `agent_rl.jsonl`, and `agent_rl_math.jsonl`
+- Removed standalone `train_reason.py`; thinking capability is now unified through `chat_template + <think>` and `open_thinking` adaptive switch control
+- `toolcall` capability has been merged into `sft_t2t / sft_t2t_mini` main branch data, default `full_sft` already has basic Tool Call capability; also added inference examples such as `scripts/chat_api.py`
+- Added native `Agentic RL` training script `train_agent.py`, supporting `GRPO / CISPO` in multi-turn Tool-Use scenarios
+- RLAIF / Agentic RL training pipeline completed `rollout engine` decoupling, supporting more flexible switching of generation backends
+- `serve_openai_api.py` and `web_demo.py` added `reasoning_content` / `tool_calls` / `open_thinking` support
+- Tokenizer updated based on `BPE + ByteLevel`, with new tool call and thinking tokens, reserved buffer tokens for future extension
+- Added LoRA weight merging and export pipeline, can merge base model and LoRA weights into new complete model weights via `scripts/convert_model.py`
+- Structure diagram resources updated, README extensively updated
+
+</details>
+
+<details> 
+<summary> <b>2025-10-24</b> </summary>
+
+- 🔥 Added RLAIF training algorithms: PPO, GRPO, SPO (natively implemented from scratch)
+- Added checkpoint resume functionality: supports automatic training recovery, cross-GPU-count recovery, wandb record continuity
+- Added RLAIF dataset: rlaif-mini.jsonl (randomly sampled 10,000 entries from SFT data); simplified DPO dataset, added Chinese data
+- Added YaRN algorithm: supports RoPE long context extrapolation, improving long sequence processing capability
+- Adaptive Thinking: Reason model optionally enables chain of thought
+- chat_template fully supports Tool Calling and Reasoning tags (`<tool_call>`, `<think>`, etc.)
+- Added complete RLAIF chapter, training curve comparison, folded algorithm principle explanations
+- [SwanLab](https://swanlab.cn/) replaces WandB (domestic access friendly, API fully compatible)
+- Standardized all code & fixed some known bugs
+
+</details>
+
+<details> 
+<summary> <b>2025-04-26</b> </summary>
+
+- Major update
+- For compatibility needs, visit [🔗Old Repository Content🔗](https://github.com/jingyaogong/minimind/tree/7da201a944a90ed49daef8a0265c959288dff83a).
+- MiniMind model parameters completely renamed, aligned with Transformers library models (unified naming).
+- generate method refactored, inheriting from GenerationMixin class.
+- 🔥Supports popular third-party ecosystems such as llama.cpp, vllm, ollama.
+- Standardized code and directory structure.
+- Changed vocabulary `<s></s>` -> `<|im_start|><|im_end|>`
+
+```text
+To be compatible with third-party inference frameworks llama.cpp, vllm, this update comes with some considerable costs.
+This update no longer supports "directly" loading old models from before 25-04-26 for inference.
+Due to differences between Llama's positional encoding method and minimind's, QK values differ after mapping to the Llama model.
+The minimind2 series old models were all recovered through weight mapping + (fine-tuning) QKVO linear layer calibration.
+After this update, maintenance for the entire `minimind-v1` series will be discontinued and taken offline from the repository.
+```
+
+</details>
+
+<details>
+<summary> <b>More...</b> </summary>
+
+**2025-02-09**
+- Major update since release, Release minimind2 Series.
+- Code almost entirely refactored, using a more concise and clear unified structure.
+  For compatibility needs with old code, visit [🔗Old Repository Content🔗](https://github.com/jingyaogong/minimind/tree/6e9cd28ef9b34a0a10afbdf6f59e65cb6e628efb).
+- Eliminated data preprocessing steps. Unified dataset format, switched to `jsonl` format to avoid dataset download confusion issues.
+- minimind2 series significantly improved performance compared to MiniMind-V1.
+- Minor issues: {kv-cache implementation more standard, MoE load balancing loss now considered, etc.}
+- Provides training solution for migrating models to private datasets (medical model, self-awareness examples).
+- Streamlined pretraining dataset and significantly improved pretraining data quality, greatly reduced time needed for individual quick training, reproducible in 2 hours on a single 3090!
+- Updated: LoRA fine-tuning decoupled from peft wrapper, LoRA process implemented from scratch; DPO algorithm natively implemented from scratch using PyTorch; model white-box distillation natively implemented.
+- minimind2-DeepSeek-R1 series distilled models born!
+- minimind2 has certain English language capability!
+- Updated benchmark test performance results of minimind2 vs third-party models on more LLM leaderboards.
+
+**2024-10-05**
+- Extended multimodal capability for MiniMind --- Vision
+- Visit the sibling project [minimind-v](https://github.com/jingyaogong/minimind-v) for details!
+
+**2024-09-27**
+- 09-27 updated pretrain dataset preprocessing method, to ensure text integrity, abandoned preprocessing into .bin format for training (slight sacrifice in training speed).
+- Currently the pretrain preprocessed file is named: pretrain_data.csv.
+- Removed some redundant code.
+
+**2024-09-17**
+- Updated minimind-v1-moe model
+- To prevent ambiguity, mistral_tokenizer is no longer used for tokenization, all using custom minimind_tokenizer as the tokenizer.
+
+**2024-09-01**
+- Updated minimind-v1 (108M) model, using minimind_tokenizer, pretrain epochs 3 + SFT epochs 10, more thorough training, stronger performance.
+- Project deployed to ModelScope Creative Space, can be experienced at this website:
+- [🔗ModelScope Online Demo🔗](https://www.modelscope.cn/studios/gongjy/minimind)
+
+**2024-08-27**
+- Project first open-sourced
+
+</details>
+
+---
+
+# 📌 Quick Start
+
+<details>
+<summary>My hardware and software configuration (for reference)</summary>
+
+* CPU: Intel(R) Core(TM) i9-10980XE CPU @ 3.00GHz
+* RAM: 128 GB
+* GPU: NVIDIA GeForce RTX 3090 (24GB) * 8
+* Ubuntu==20.04
+* CUDA==12.2
+* Python==3.10.16
+* [requirements.txt](./requirements.txt)
+
+</details>
+
+## Step 0
+
+```bash
+# Clone repository and install dependencies
+git clone --depth 1 https://github.com/jingyaogong/minimind
+cd minimind && pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple
+```
+
+## Ⅰ 🚀 Model Inference
+
+### 1' Download Model
+
+In the project root directory:
+```bash
+# Method 1
+modelscope download --model gongjy/minimind-3 --local_dir ./minimind-3
+# Method 2
+git clone https://huggingface.co/jingyaogong/minimind-3
+```
+
+### 2' CLI Inference
+
+```bash
+# Method 1: Using Transformers format model
+python eval_llm.py --load_from ./minimind-3
+# Method 2: Based on PyTorch model (ensure corresponding weights are in the ./out directory)
+python eval_llm.py --load_from ./model --weight full_sft
+```
+
+### 3' (Optional) WebUI
+
+```bash
+# May need `python>=3.10`, install `pip install streamlit`
+# ⚠️ You must first copy the transformers-format model folder into ./scripts/ (e.g.: cp -r minimind-3 ./scripts/minimind-3). The web_demo script will auto-scan subdirectories containing weight files; it will throw an error if none are found.
+cd scripts && streamlit run web_demo.py
+```
+
+### 4' (Optional) Third-party Inference Frameworks
+
+```bash
+# ollama
+ollama run jingyaogong/minimind-3
+# vllm
+vllm serve /path/to/model --served-model-name "minimind"
+```
+
+## Ⅱ 🛠️ Model Training
+
+<details>
+<summary>Note: Confirm Torch's available backend in advance</summary>
+
+```python
+import torch
+print(torch.cuda.is_available())
+```
+
+If you plan to use CUDA for training, it is recommended to first confirm whether the current environment has correctly recognized the GPU.  
+If `cuda` is not available, you can still choose `CPU` or `MPS` to run based on your device, but training speed and compatibility will differ significantly.  
+If you need to install or switch PyTorch versions, refer to [torch_stable](https://download.pytorch.org/whl/torch_stable.html) and [this link](https://blog.csdn.net/weixin_45456738/article/details/141029610?ops_request_misc=&request_id=&biz_id=102&utm_term=%E5%AE%89%E8%A3%85torch&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-2-141029610.nonecase&spm=1018.2226.3001.4187)
+
+</details>
+
+### 1' Download Data
+
+Download the required data files from the [dataset download link](https://www.modelscope.cn/datasets/gongjy/minimind_dataset/files) provided below, and place them in the `./dataset` directory
+
+> Currently, by default, you only need to download `pretrain_t2t_mini.jsonl` and `sft_t2t_mini.jsonl` to quickly reproduce the `MiniMind Zero` dialogue model.
+For other use cases, several data combinations are provided below and can be selected according to your task objectives and GPU resources.
+
+### 2' Start Training
+
+<details>
+<summary>💡 Checkpoint Pause and Resume</summary>
+
+All training scripts support checkpoint saving. After adding the `--from_resume 1` parameter, the script will automatically detect and resume training progress:
+
+```bash
+python train_pretrain.py --from_resume 1
+python train_full_sft.py --from_resume 1
+# ...
+```
+
+**Checkpoint Resume Instructions:**
+- The training process automatically saves complete checkpoints (model, optimizer, training progress, etc.) in the `./checkpoints/` directory
+- Checkpoint file naming: `<weight_name>_<dimension>_resume.pth` (e.g., `full_sft_512_resume.pth`)
+- Supports recovery across different GPU counts (automatically adjusts step)
+- Supports wandb training record continuity (automatically resumes the same run)
+
+> Suitable for long-duration training or unstable environments, no need to worry about progress loss due to training interruption
+
+</details>
+
+#### 2.1 Pretraining (Required)
+
+```bash
+cd trainer && python train_pretrain.py
+```
+
+> After training, `out/pretrain_*.pth` will be produced as output weights (where `*` is the model dimension, default `768`)
+
+#### 2.2 Instruction Fine-tuning (Required)
+
+```bash
+cd trainer && python train_full_sft.py
+```
+
+> After training, `out/full_sft_*.pth` will be produced as output weights (where `full` indicates full-parameter fine-tuning)
+
+#### 2.3 Test Trained Model (Optional)
+
+Ensure the model `*.pth` files to be tested are located in the `./out/` directory; you can also go directly to [here](https://www.modelscope.cn/models/gongjy/minimind-3-pytorch/files) to download my pre-trained `*.pth` weights.
+
+```bash
+python eval_llm.py --weight full_sft
+```
+
+> `--weight` is used to specify the weight name prefix, such as `pretrain`, `full_sft`, etc.; for more parameters, refer directly to `eval_llm.py`
+
+<details>
+<summary>Note: Other Information</summary>
+
+1. All training scripts are natively implemented based on PyTorch and support multi-GPU acceleration.
+
+2. If your device has `N (N > 1)` GPUs, you can start single-machine `N`-GPU training as follows (DDP, also supports extension to multi-machine multi-GPU):
+
+```bash
+torchrun --nproc_per_node N train_xxx.py
+```
+
+3. You can enable wandb to record the training process as needed.
+
+```bash
+... train_xxx.py --use_wandb
+```
+After June `2025`, domestic network environments in China typically cannot directly connect to WandB. MiniMind currently defaults to using [SwanLab](https://swanlab.cn/) as the training visualization tool, whose interface is basically compatible with WandB; usually you only need to replace `import wandb` with `import swanlab as wandb`, and other usage remains largely unchanged.
+import os
+import sys
+
+__package__ = "trainer"
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import datasets  # noqa: F401  # Windows pyarrow/torch DLL conflict workaround (issue #771)
+import argparse
+import time
+import warnings
+import torch
+import torch.distributed as dist
+from contextlib import nullcontext
+from torch import optim, nn
+from torch.nn.parallel import DistributedDataParallel
+from torch.utils.data import DataLoader, DistributedSampler
+from model.model_minimind import MiniMindConfig
+from dataset.lm_dataset import PretrainDataset
+from trainer.trainer_utils import get_lr, Logger, is_main_process, lm_checkpoint, init_distributed_mode, setup_seed, init_model, SkipBatchSampler
+
+warnings.filterwarnings('ignore')
+
+
+def train_epoch(epoch, loader, iters, start_step=0, wandb=None):
+    start_time = time.time()
+    last_step = start_step
+    for step, (input_ids, labels) in enumerate(loader, start=start_step + 1):
+        input_ids = input_ids.to(args.device)
+        labels = labels.to(args.device)
+        last_step = step
+        lr = get_lr(epoch * iters + step, args.epochs * iters, args.learning_rate)
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
+        with autocast_ctx:
+            res = model(input_ids, labels=labels)
+            loss = res.loss + res.aux_loss
+            loss = loss / args.accumulation_steps
+
+        scaler.scale(loss).backward()
+
+        if step % args.accumulation_steps == 0:
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
+
+            scaler.step(optimizer)
+            scaler.update()
+
+            optimizer.zero_grad(set_to_none=True)
+
+        if step % args.log_interval == 0 or step == iters:
+            spend_time = time.time() - start_time
+            current_loss = loss.item() * args.accumulation_steps
+            current_aux_loss = res.aux_loss.item() if res.aux_loss is not None else 0.0
+            current_logits_loss = current_loss - current_aux_loss
+            current_lr = optimizer.param_groups[-1]['lr']
+            eta_min = spend_time / max(step - start_step, 1) * (iters - step) // 60
+            Logger(f'Epoch:[{epoch + 1}/{args.epochs}]({step}/{iters}), loss: {current_loss:.4f}, logits_loss: {current_logits_loss:.4f}, aux_loss: {current_aux_loss:.4f}, lr: {current_lr:.8f}, epoch_time: {eta_min:.1f}min')
+            if wandb: wandb.log({"loss": current_loss, "logits_loss": current_logits_loss, "aux_loss": current_aux_loss, "learning_rate": current_lr, "epoch_time": eta_min})
+
+        if (step % args.save_interval == 0 or step == iters) and is_main_process():
+            model.eval()
+            moe_suffix = '_moe' if lm_config.use_moe else ''
+            ckp = f'{args.save_dir}/{args.save_weight}_{lm_config.hidden_size}{moe_suffix}.pth'
+            raw_model = model.module if isinstance(model, DistributedDataParallel) else model
+            raw_model = getattr(raw_model, '_orig_mod', raw_model)
+            state_dict = raw_model.state_dict()
+            torch.save({k: v.half().cpu() for k, v in state_dict.items()}, ckp)
+            lm_checkpoint(lm_config, weight=args.save_weight, model=model, optimizer=optimizer, scaler=scaler, epoch=epoch, step=step, wandb=wandb, save_dir='../checkpoints')
+            model.train()
+            del state_dict
+
+        del input_ids, labels, res, loss
+
+    if last_step > start_step and last_step % args.accumulation_steps != 0:
+        scaler.unscale_(optimizer)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
+        scaler.step(optimizer)
+        scaler.update()
+        optimizer.zero_grad(set_to_none=True)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="MiniMind Pretraining")
+    parser.add_argument("--save_dir", type=str, default="../out", help="模型保存目录")
+    parser.add_argument('--save_weight', default='pretrain', type=str, help="保存权重的前缀名")
+    parser.add_argument("--epochs", type=int, default=2, help="训练轮数")
+    parser.add_argument("--batch_size", type=int, default=32, help="batch size")
+    parser.add_argument("--learning_rate", type=float, default=5e-4, help="初始学习率")
+    parser.add_argument("--device", type=str, default="cuda:0" if torch.cuda.is_available() else "cpu", help="训练设备")
+    parser.add_argument("--dtype", type=str, default="bfloat16", help="混合精度类型")
+    parser.add_argument("--num_workers", type=int, default=8, help="数据加载线程数")
+    parser.add_argument("--accumulation_steps", type=int, default=8, help="梯度累积步数")
+    parser.add_argument("--grad_clip", type=float, default=1.0, help="梯度裁剪阈值")
+    parser.add_argument("--log_interval", type=int, default=100, help="日志打印间隔")
+    parser.add_argument("--save_interval", type=int, default=1000, help="模型保存间隔")
+    parser.add_argument('--hidden_size', default=768, type=int, help="隐藏层维度")
+    parser.add_argument('--num_hidden_layers', default=8, type=int, help="隐藏层数量")
+    parser.add_argument('--max_seq_len', default=340, type=int, help="训练的最大截断长度（中文1token≈1.5~1.7字符）")
+    parser.add_argument('--use_moe', default=0, type=int, choices=[0, 1], help="是否使用MoE架构（0=否，1=是）")
+    parser.add_argument("--data_path", type=str, default="../dataset/pretrain_t2t_mini.jsonl", help="预训练数据路径")
+    parser.add_argument('--from_weight', default='none', type=str, help="基于哪个权重训练，为none则从头开始")
+    parser.add_argument('--from_resume', default=0, type=int, choices=[0, 1], help="是否自动检测&续训（0=否，1=是）")
+    parser.add_argument("--use_wandb", action="store_true", help="是否使用wandb")
+    parser.add_argument("--wandb_project", type=str, default="MiniMind-Pretrain", help="wandb项目名")
+    parser.add_argument("--use_compile", default=0, type=int, choices=[0, 1], help="是否使用torch.compile加速（0=否，1=是）")
+    args = parser.parse_args()
+
+    # ========== 1. 初始化环境和随机种子 ==========
+    local_rank = init_distributed_mode()
+    if dist.is_initialized(): args.device = f"cuda:{local_rank}"
+    setup_seed(42 + (dist.get_rank() if dist.is_initialized() else 0))
+    
+    # ========== 2. 配置目录、模型参数、检查ckp ==========
+    os.makedirs(args.save_dir, exist_ok=True)
+    lm_config = MiniMindConfig(hidden_size=args.hidden_size, num_hidden_layers=args.num_hidden_layers, use_moe=bool(args.use_moe))
+    ckp_data = lm_checkpoint(lm_config, weight=args.save_weight, save_dir='../checkpoints') if args.from_resume==1 else None
+    
+    # ========== 3. 设置混合精度 ==========
+    device_type = "cuda" if "cuda" in args.device else "cpu"
+    dtype = torch.bfloat16 if args.dtype == "bfloat16" else torch.float16
+    autocast_ctx = nullcontext() if device_type == "cpu" else torch.cuda.amp.autocast(dtype=dtype)
+    
+    # ========== 4. 配wandb ==========
+    wandb = None
+    if args.use_wandb and is_main_process():
+        import swanlab as wandb
+        wandb_id = ckp_data.get('wandb_id') if ckp_data else None
+        resume = 'must' if wandb_id else None
+        wandb_run_name = f"MiniMind-Pretrain-Epoch-{args.epochs}-BatchSize-{args.batch_size}-LearningRate-{args.learning_rate}"
+        wandb.init(project=args.wandb_project, name=wandb_run_name, id=wandb_id, resume=resume)
+    
+    # ========== 5. 定义模型、数据、优化器 ==========
+    model, tokenizer = init_model(lm_config, args.from_weight, device=args.device)
+    train_ds = PretrainDataset(args.data_path, tokenizer, max_length=args.max_seq_len)
+    train_sampler = DistributedSampler(train_ds) if dist.is_initialized() else None
+    scaler = torch.cuda.amp.GradScaler(enabled=(args.dtype == 'float16'))
+    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
+    
+    # ========== 6. 从ckp恢复状态 ==========
+    start_epoch, start_step = 0, 0
+    if ckp_data:
+        model.load_state_dict(ckp_data['model'])
+        optimizer.load_state_dict(ckp_data['optimizer'])
+        scaler.load_state_dict(ckp_data['scaler'])
+        start_epoch = ckp_data['epoch']
+        start_step = ckp_data.get('step', 0)
+    
+    # ========== 7. 编译和分布式包装 ==========
+    if args.use_compile == 1:
+        model = torch.compile(model)
+        Logger('torch.compile enabled')
+    if dist.is_initialized():
+        model = DistributedDataParallel(model, device_ids=[local_rank])
+    
+    # ========== 8. 开始训练 ==========
+    for epoch in range(start_epoch, args.epochs):
+        train_sampler and train_sampler.set_epoch(epoch)
+        setup_seed(42 + epoch); indices = torch.randperm(len(train_ds)).tolist()
+        skip = start_step if (epoch == start_epoch and start_step > 0) else 0
+        batch_sampler = SkipBatchSampler(train_sampler or indices, args.batch_size, skip)
+        loader = DataLoader(train_ds, batch_sampler=batch_sampler, num_workers=args.num_workers, pin_memory=True)
+        if skip > 0: 
+            Logger(f'Epoch [{epoch + 1}/{args.epochs}]: 跳过前{start_step}个step，从step {start_step + 1}开始')
+            train_epoch(epoch, loader, len(loader) + skip, start_step, wandb)
+        else:
+            train_epoch(epoch, loader, len(loader), 0, wandb)
+    
+    # ========== 9. 清理分布进程 ==========
+    if dist.is_initialized():
+        dist.barrier()
+        dist.destroy_process_group()import os
+import sys
+
+__package__ = "trainer"
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import datasets  # noqa: F401  # Windows pyarrow/torch DLL conflict workaround (issue #771)
+import argparse
+import time
+import warnings
+import torch
+import torch.distributed as dist
+from contextlib import nullcontext
+from torch import optim, nn
+from torch.nn.parallel import DistributedDataParallel
+from torch.utils.data import DataLoader, DistributedSampler
+from model.model_minimind import MiniMindConfig
+from dataset.lm_dataset import SFTDataset
+from trainer.trainer_utils import get_lr, Logger, is_main_process, lm_checkpoint, init_distributed_mode, setup_seed, init_model, SkipBatchSampler
+
+warnings.filterwarnings('ignore')
+
+
+def train_epoch(epoch, loader, iters, start_step=0, wandb=None):
+    start_time = time.time()
+    last_step = start_step
+    for step, (input_ids, labels) in enumerate(loader, start=start_step + 1):
+        input_ids = input_ids.to(args.device)
+        labels = labels.to(args.device)
+        last_step = step
+        lr = get_lr(epoch * iters + step, args.epochs * iters, args.learning_rate)
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
+        with autocast_ctx:
+            res = model(input_ids, labels=labels)
+            loss = res.loss + res.aux_loss
+            loss = loss / args.accumulation_steps
+
+        scaler.scale(loss).backward()
+
+        if step % args.accumulation_steps == 0:
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
+
+            scaler.step(optimizer)
+            scaler.update()
+
+            optimizer.zero_grad(set_to_none=True)
+
+        if step % args.log_interval == 0 or step == iters:
+            spend_time = time.time() - start_time
+            current_loss = loss.item() * args.accumulation_steps
+            current_aux_loss = res.aux_loss.item() if res.aux_loss is not None else 0.0
+            current_logits_loss = current_loss - current_aux_loss
+            current_lr = optimizer.param_groups[-1]['lr']
+            eta_min = spend_time / max(step - start_step, 1) * (iters - step) // 60
+            Logger(f'Epoch:[{epoch + 1}/{args.epochs}]({step}/{iters}), loss: {current_loss:.4f}, logits_loss: {current_logits_loss:.4f}, aux_loss: {current_aux_loss:.4f}, lr: {current_lr:.8f}, epoch_time: {eta_min:.1f}min')
+            if wandb: wandb.log({"loss": current_loss, "logits_loss": current_logits_loss, "aux_loss": current_aux_loss, "learning_rate": current_lr, "epoch_time": eta_min})
+
+        if (step % args.save_interval == 0 or step == iters) and is_main_process():
+            model.eval()
+            moe_suffix = '_moe' if lm_config.use_moe else ''
+            ckp = f'{args.save_dir}/{args.save_weight}_{lm_config.hidden_size}{moe_suffix}.pth'
+            raw_model = model.module if isinstance(model, DistributedDataParallel) else model
+            raw_model = getattr(raw_model, '_orig_mod', raw_model)
+            state_dict = raw_model.state_dict()
+            torch.save({k: v.half().cpu() for k, v in state_dict.items()}, ckp)
+            lm_checkpoint(lm_config, weight=args.save_weight, model=model, optimizer=optimizer, 
+                         epoch=epoch, step=step, wandb=wandb, save_dir='../checkpoints', scaler=scaler)
+            model.train()
+            del state_dict
+
+        del input_ids, labels, res, loss
+
+    if last_step > start_step and last_step % args.accumulation_steps != 0:
+        scaler.unscale_(optimizer)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
+        scaler.step(optimizer)
+        scaler.update()
+        optimizer.zero_grad(set_to_none=True)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="MiniMind Full SFT")
+    parser.add_argument("--save_dir", type=str, default="../out", help="模型保存目录")
+    parser.add_argument('--save_weight', default='full_sft', type=str, help="保存权重的前缀名")
+    parser.add_argument("--epochs", type=int, default=2, help="训练轮数")
+    parser.add_argument("--batch_size", type=int, default=16, help="batch size")
+    parser.add_argument("--learning_rate", type=float, default=1e-5, help="初始学习率")
+    parser.add_argument("--device", type=str, default="cuda:0" if torch.cuda.is_available() else "cpu", help="训练设备")
+    parser.add_argument("--dtype", type=str, default="bfloat16", help="混合精度类型")
+    parser.add_argument("--num_workers", type=int, default=8, help="数据加载线程数")
+    parser.add_argument("--accumulation_steps", type=int, default=1, help="梯度累积步数")
+    parser.add_argument("--grad_clip", type=float, default=1.0, help="梯度裁剪阈值")
+    parser.add_argument("--log_interval", type=int, default=100, help="日志打印间隔")
+    parser.add_argument("--save_interval", type=int, default=1000, help="模型保存间隔")
+    parser.add_argument('--hidden_size', default=768, type=int, help="隐藏层维度")
+    parser.add_argument('--num_hidden_layers', default=8, type=int, help="隐藏层数量")
+    parser.add_argument('--max_seq_len', default=768, type=int, help="训练的最大截断长度（中文1token≈1.5~1.7字符）")
+    parser.add_argument('--use_moe', default=0, type=int, choices=[0, 1], help="是否使用MoE架构（0=否，1=是）")
+    parser.add_argument("--data_path", type=str, default="../dataset/sft_t2t_mini.jsonl", help="训练数据路径")
+    parser.add_argument('--from_weight', default='pretrain', type=str, help="基于哪个权重训练，为none则不基于任何权重训练")
+    parser.add_argument('--from_resume', default=0, type=int, choices=[0, 1], help="是否自动检测&续训（0=否，1=是）")
+    parser.add_argument("--use_wandb", action="store_true", help="是否使用wandb")
+    parser.add_argument("--wandb_project", type=str, default="MiniMind-Full-SFT", help="wandb项目名")
+    parser.add_argument("--use_compile", default=0, type=int, choices=[0, 1], help="是否使用torch.compile加速（0=否，1=是）")
+    args = parser.parse_args()
+
+    # ========== 1. 初始化环境和随机种子 ==========
+    local_rank = init_distributed_mode()
+    if dist.is_initialized(): args.device = f"cuda:{local_rank}"
+    setup_seed(42 + (dist.get_rank() if dist.is_initialized() else 0))
+    
+    # ========== 2. 配置目录、模型参数、检查ckp ==========
+    os.makedirs(args.save_dir, exist_ok=True)
+    lm_config = MiniMindConfig(hidden_size=args.hidden_size, num_hidden_layers=args.num_hidden_layers, use_moe=bool(args.use_moe))
+    ckp_data = lm_checkpoint(lm_config, weight=args.save_weight, save_dir='../checkpoints') if args.from_resume==1 else None
+    
+    # ========== 3. 设置混合精度 ==========
+    device_type = "cuda" if "cuda" in args.device else "cpu"
+    dtype = torch.bfloat16 if args.dtype == "bfloat16" else torch.float16
+    autocast_ctx = nullcontext() if device_type == "cpu" else torch.cuda.amp.autocast(dtype=dtype)
+    
+    # ========== 4. 配wandb ==========
+    wandb = None
+    if args.use_wandb and is_main_process():
+        import swanlab as wandb
+        wandb_id = ckp_data.get('wandb_id') if ckp_data else None
+        resume = 'must' if wandb_id else None
+        wandb_run_name = f"MiniMind-Full-SFT-Epoch-{args.epochs}-BatchSize-{args.batch_size}-LearningRate-{args.learning_rate}"
+        wandb.init(project=args.wandb_project, name=wandb_run_name, id=wandb_id, resume=resume)
+    
+    # ========== 5. 定义模型、数据、优化器 ==========
+    model, tokenizer = init_model(lm_config, args.from_weight, device=args.device)
+    train_ds = SFTDataset(args.data_path, tokenizer, max_length=args.max_seq_len)
+    train_sampler = DistributedSampler(train_ds) if dist.is_initialized() else None
+    scaler = torch.cuda.amp.GradScaler(enabled=(args.dtype == 'float16'))
+    optimizer = optim.AdamW(model.parameters(), lr=args.learning_rate)
+    
+    # ========== 6. 从ckp恢复状态 ==========
+    start_epoch, start_step = 0, 0
+    if ckp_data:
+        model.load_state_dict(ckp_data['model'])
+        optimizer.load_state_dict(ckp_data['optimizer'])
+        scaler.load_state_dict(ckp_data['scaler'])
+        start_epoch = ckp_data['epoch']
+        start_step = ckp_data.get('step', 0)
+    
+    # ========== 7. 编译和分布式包装 ==========
+    if args.use_compile == 1:
+        model = torch.compile(model)
+        Logger('torch.compile enabled')
+    if dist.is_initialized():
+        model = DistributedDataParallel(model, device_ids=[local_rank])
+    
+    # ========== 8. 开始训练 ==========
+    for epoch in range(start_epoch, args.epochs):
+        train_sampler and train_sampler.set_epoch(epoch)
+        setup_seed(42 + epoch); indices = torch.randperm(len(train_ds)).tolist()
+        skip = start_step if (epoch == start_epoch and start_step > 0) else 0
+        batch_sampler = SkipBatchSampler(train_sampler or indices, args.batch_size, skip)
+        loader = DataLoader(train_ds, batch_sampler=batch_sampler, num_workers=args.num_workers, pin_memory=True)
+        if skip > 0: 
+            Logger(f'Epoch [{epoch + 1}/{args.epochs}]: 跳过前{start_step}个step，从step {start_step + 1}开始')
+            train_epoch(epoch, loader, len(loader) + skip, start_step, wandb)
+        else:
+            train_epoch(epoch, loader, len(loader), 0, wandb)
+    
+    # ========== 9. 清理分布进程 ==========
+    if dist.is_initialized():
+        dist.barrier()
+        dist.destroy_process_group()import time
+import argparse
+import random
+import warnings
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
+from model.model_minimind import MiniMindConfig, MiniMindForCausalLM
+from model.model_lora import *
+from trainer.trainer_utils import setup_seed, get_model_params
+warnings.filterwarnings('ignore')
+
+def init_model(args):
+    tokenizer = AutoTokenizer.from_pretrained(args.load_from)
+    if 'model' in args.load_from:
+        model = MiniMindForCausalLM(MiniMindConfig(
+            hidden_size=args.hidden_size,
+            num_hidden_layers=args.num_hidden_layers,
+            use_moe=bool(args.use_moe),
+            inference_rope_scaling=args.inference_rope_scaling
+        ))
+        moe_suffix = '_moe' if args.use_moe else ''
+        ckp = f'./{args.save_dir}/{args.weight}_{args.hidden_size}{moe_suffix}.pth'
+        model.load_state_dict(torch.load(ckp, map_location=args.device), strict=True)
+        if args.lora_weight != 'None':
+            apply_lora(model)
+            load_lora(model, f'./{args.save_dir}/{args.lora_weight}_{args.hidden_size}.pth')
+    else:
+        model = AutoModelForCausalLM.from_pretrained(args.load_from, trust_remote_code=True)
+    get_model_params(model, model.config)
+    return model.half().eval().to(args.device), tokenizer
+
+def main():
+    parser = argparse.ArgumentParser(description="MiniMind模型推理与对话")
+    parser.add_argument('--load_from', default='model', type=str, help="模型加载路径（model=原生torch权重，其他路径=transformers格式）")
+    parser.add_argument('--save_dir', default='out', type=str, help="模型权重目录")
+    parser.add_argument('--weight', default='full_sft', type=str, help="权重名称前缀（pretrain, full_sft, rlhf, reason, ppo_actor, grpo, spo）")
+    parser.add_argument('--lora_weight', default='None', type=str, help="LoRA权重名称（None表示不使用，可选：lora_identity, lora_medical）")
+    parser.add_argument('--hidden_size', default=768, type=int, help="隐藏层维度")
+    parser.add_argument('--num_hidden_layers', default=8, type=int, help="隐藏层数量")
+    parser.add_argument('--use_moe', default=0, type=int, choices=[0, 1], help="是否使用MoE架构（0=否，1=是）")
+    parser.add_argument('--inference_rope_scaling', default=False, action='store_true', help="启用RoPE位置编码外推（4倍，仅解决位置编码问题）")
+    parser.add_argument('--max_new_tokens', default=8192, type=int, help="最大生成长度（注意：并非模型实际长文本能力）")
+    parser.add_argument('--temperature', default=0.85, type=float, help="生成温度，控制随机性（0-1，越大越随机）")
+    parser.add_argument('--top_p', default=0.95, type=float, help="nucleus采样阈值（0-1）")
+    parser.add_argument('--open_thinking', default=0, type=int, help="是否开启自适应思考（0=否，1=是）")
+    parser.add_argument('--historys', default=0, type=int, help="携带历史对话轮数（需为偶数，0表示不携带历史）")
+    parser.add_argument('--show_speed', default=1, type=int, help="显示decode速度（tokens/s）")
+    parser.add_argument('--device', default='cuda' if torch.cuda.is_available() else 'cpu', type=str, help="运行设备")
+    args = parser.parse_args()
+    
+    prompts = [
+        '你有什么特长？',
+        '为什么天空是蓝色的',
+        '请用Python写一个计算斐波那契数列的函数',
+        '解释一下"光合作用"的基本过程',
+        '如果明天下雨，我应该如何出门',
+        '比较一下猫和狗作为宠物的优缺点',
+        '解释什么是机器学习',
+        '推荐一些中国的美食'
+    ]
+    
+    conversation = []
+    model, tokenizer = init_model(args)
+    input_mode = int(input('[0] 自动测试\n[1] 手动输入\n'))
+    streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
+    
+    prompt_iter = prompts if input_mode == 0 else iter(lambda: input('💬: '), '')
+    for prompt in prompt_iter:
+        setup_seed(random.randint(0, 31415926))
+        if input_mode == 0: print(f'💬: {prompt}')
+        conversation = conversation[-args.historys:] if args.historys else []
+        conversation.append({"role": "user", "content": prompt})
+        if 'pretrain' in args.weight:
+            inputs = tokenizer.bos_token + prompt
+        else:
+            inputs = tokenizer.apply_chat_template(conversation, tokenize=False, add_generation_prompt=True, open_thinking=bool(args.open_thinking))
+        
+        inputs = tokenizer(inputs, return_tensors="pt", truncation=True).to(args.device)
+
+        print('🧠: ', end='')
+        st = time.time()
+        generated_ids = model.generate(
+            inputs=inputs["input_ids"], attention_mask=inputs["attention_mask"],
+            max_new_tokens=args.max_new_tokens, do_sample=True, streamer=streamer,
+            pad_token_id=tokenizer.pad_token_id, eos_token_id=tokenizer.eos_token_id,
+            top_p=args.top_p, temperature=args.temperature, repetition_penalty=1
+        )
+        response = tokenizer.decode(generated_ids[0][len(inputs["input_ids"][0]):], skip_special_tokens=True)
+        conversation.append({"role": "assistant", "content": response})
+        gen_tokens = len(generated_ids[0]) - len(inputs["input_ids"][0])
+        print(f'\n[Speed]: {gen_tokens / (time.time() - st):.2f} tokens/s\n\n') if args.show_speed else print('\n\n')
+
+if __name__ == "__main__":
+    main()from torch.utils.data import Dataset
+import torch
+import json
+import os
+import random
+from datasets import load_dataset, Features, Sequence, Value
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+def pre_processing_chat(conversations, add_system_ratio=0.2):
+    # tool use 数据完整保留不做处理
+    if any(conv.get('tools') for conv in conversations): return conversations
+
+    SYSTEM_PROMPTS = [
+        "你是一个知识丰富的AI，尽力为用户提供准确的信息。",
+        "你是minimind，一个小巧但有用的语言模型。",
+        "你是一个专业的AI助手，请提供有价值的回答。",
+        "你是minimind，请尽力帮助用户解决问题。",
+        "你是一个可靠的AI，请给出准确的回答。",
+        "You are a helpful AI assistant.",
+        "You are minimind, a lightweight intelligent assistant.",
+        "You are a friendly chatbot. Please answer the user's questions carefully.",
+        "You are a knowledgeable AI. Try your best to provide accurate information.",
+        "You are minimind, a small but useful language model."
+    ]
+    # 概率性添加system
+    if conversations[0].get('role') != 'system':
+        if random.random() < add_system_ratio:
+            return [{'role': 'system', 'content': random.choice(SYSTEM_PROMPTS)}] + conversations
+    return conversations
+
+def post_processing_chat(prompt_content, empty_think_ratio=0.2):
+    # 以80%概率移除空思考标签
+    if '<think>\n\n</think>\n\n' in prompt_content and random.random() > empty_think_ratio:
+        prompt_content = prompt_content.replace('<think>\n\n</think>\n\n', '')
+    return prompt_content
+
+class PretrainDataset(Dataset):
+    def __init__(self, data_path, tokenizer, max_length=512):
+        super().__init__()
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+        self.samples = load_dataset('json', data_files=data_path, split='train')
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, index):
+        sample = self.samples[index]
+        tokens = self.tokenizer(str(sample['text']), add_special_tokens=False, max_length=self.max_length - 2, truncation=True).input_ids
+        tokens = [self.tokenizer.bos_token_id] + tokens + [self.tokenizer.eos_token_id]
+        input_ids = tokens + [self.tokenizer.pad_token_id] * (self.max_length - len(tokens))
+        input_ids = torch.tensor(input_ids, dtype=torch.long)
+        labels = input_ids.clone()
+        labels[input_ids == self.tokenizer.pad_token_id] = -100
+        return input_ids, labels
+
+
+class SFTDataset(Dataset):
+    def __init__(self, jsonl_path, tokenizer, max_length=1024):
+        super().__init__()
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+        features = Features({'conversations': [{'role': Value('string'), 'content': Value('string'), 'reasoning_content': Value('string'), 'tools': Value('string'), 'tool_calls': Value('string')}]})
+        self.samples = load_dataset('json', data_files=jsonl_path, split='train', features=features)
+        self.bos_id = tokenizer(f'{tokenizer.bos_token}assistant\n', add_special_tokens=False).input_ids
+        self.eos_id = tokenizer(f'{tokenizer.eos_token}\n', add_special_tokens=False).input_ids
+
+    def __len__(self):
+        return len(self.samples)
+
+    def create_chat_prompt(self, conversations):
+        messages = []
+        tools = None
+        for message in conversations:
+            message = dict(message)
+            if message.get("role") == "system" and message.get("tools"):
+                tools = json.loads(message["tools"]) if isinstance(message["tools"], str) else message["tools"]
+            if message.get("tool_calls") and isinstance(message["tool_calls"], str):
+                message["tool_calls"] = json.loads(message["tool_calls"])
+            messages.append(message)
+        return self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=False,
+            tools=tools
+        )
+
+    def generate_labels(self, input_ids):
+        labels = [-100] * len(input_ids)
+        i = 0
+        while i < len(input_ids):
+            if input_ids[i:i + len(self.bos_id)] == self.bos_id:
+                start = i + len(self.bos_id)
+                end = start
+                while end < len(input_ids):
+                    if input_ids[end:end + len(self.eos_id)] == self.eos_id:
+                        break
+                    end += 1
+                for j in range(start, min(end + len(self.eos_id), self.max_length)):
+                    labels[j] = input_ids[j]
+                i = end + len(self.eos_id) if end < len(input_ids) else len(input_ids)
+            else:
+                i += 1
+        return labels
+
+    def __getitem__(self, index):
+        sample = self.samples[index]
+        conversations = pre_processing_chat(sample['conversations'])
+        prompt = self.create_chat_prompt(conversations)
+        prompt = post_processing_chat(prompt)
+        input_ids = self.tokenizer(prompt).input_ids[:self.max_length]
+        input_ids += [self.tokenizer.pad_token_id] * (self.max_length - len(input_ids))
+        labels = self.generate_labels(input_ids)
+        # # === 调试打印 ===
+        # print(f"\n--- Sample {index} ---")
+        # for i, (x, y) in enumerate(zip(input_ids[:-1], labels[1:])):
+        #     print(f"{i:3d}: X={self.tokenizer.decode([x])!r:16s} ---> Y={self.tokenizer.decode([input_ids[i+1]])!r:16s} label={y}")
+        # # ================
+        return torch.tensor(input_ids, dtype=torch.long), torch.tensor(labels, dtype=torch.long)
+
+
+class DPODataset(Dataset):
+    def __init__(self, file_path, tokenizer, max_length=4096):
+        super().__init__()
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+        self.padding = tokenizer.pad_token_id if tokenizer.pad_token_id is not None else 0
+        self.bos_id = tokenizer(f'{tokenizer.bos_token}assistant\n', add_special_tokens=False).input_ids
+        self.eos_id = tokenizer(f'{tokenizer.eos_token}\n', add_special_tokens=False).input_ids
+        self.samples = load_dataset('json', data_files=file_path, split='train')
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, index):
+        sample = self.samples[index]
+        chosen = sample['chosen']  # 是一个 list，里面包含若干 {role, content}
+        rejected = sample['rejected']  # 同上
+        chosen_prompt = self.tokenizer.apply_chat_template(
+            chosen, tokenize=False, add_generation_prompt=False
+        )
+        chosen_prompt = post_processing_chat(chosen_prompt)
+
+        rejected_prompt = self.tokenizer.apply_chat_template(
+            rejected, tokenize=False, add_generation_prompt=False
+        )
+        rejected_prompt = post_processing_chat(rejected_prompt)
+        chosen_encoding = self.tokenizer(
+            chosen_prompt, truncation=True, max_length=self.max_length, padding='max_length'
+        )
+        rejected_encoding = self.tokenizer(
+            rejected_prompt, truncation=True, max_length=self.max_length, padding='max_length'
+        )
+
+        chosen_input_ids = chosen_encoding['input_ids']
+        chosen_loss_mask = self.generate_loss_mask(chosen_input_ids)
+
+        rejected_input_ids = rejected_encoding['input_ids']
+        rejected_loss_mask = self.generate_loss_mask(rejected_input_ids)
+        x_chosen = torch.tensor(chosen_input_ids[:-1], dtype=torch.long)
+        y_chosen = torch.tensor(chosen_input_ids[1:], dtype=torch.long)
+        mask_chosen = torch.tensor(chosen_loss_mask[1:], dtype=torch.long)
+        x_rejected = torch.tensor(rejected_input_ids[:-1], dtype=torch.long)
+        y_rejected = torch.tensor(rejected_input_ids[1:], dtype=torch.long)
+        mask_rejected = torch.tensor(rejected_loss_mask[1:], dtype=torch.long)
+
+        return {
+            'x_chosen': x_chosen,
+            'y_chosen': y_chosen,
+            'mask_chosen': mask_chosen,
+            'x_rejected': x_rejected,
+            'y_rejected': y_rejected,
+            'mask_rejected': mask_rejected
+        }
+
+    def generate_loss_mask(self, input_ids):
+        loss_mask = [0] * len(input_ids)
+        i = 0
+        while i < len(input_ids):
+            if input_ids[i:i + len(self.bos_id)] == self.bos_id:
+import math, torch, torch.nn.functional as F
+from torch import nn
+from transformers.activations import ACT2FN
+from transformers import PreTrainedModel, GenerationMixin, PretrainedConfig
+from transformers.modeling_outputs import MoeCausalLMOutputWithPast
+
+# 🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏
+#                                     MiniMind Config
+# 🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏
+class MiniMindConfig(PretrainedConfig):
+    model_type = "minimind"
+    def __init__(self, hidden_size=768, num_hidden_layers=8, use_moe=False, **kwargs):
+        super().__init__(**kwargs)
+        self.hidden_size = hidden_size
+        self.num_hidden_layers = num_hidden_layers
+        self.use_moe = use_moe
+        self.dropout = kwargs.get("dropout", 0.0)
+        self.vocab_size = kwargs.get("vocab_size", 6400)
+        self.bos_token_id = kwargs.get("bos_token_id", 1)
+        self.eos_token_id = kwargs.get("eos_token_id", 2)
+        self.flash_attn = kwargs.get("flash_attn", True)
+        self.num_attention_heads = kwargs.get("num_attention_heads", 8)
+        self.num_key_value_heads = kwargs.get("num_key_value_heads", 4)
+        self.head_dim = kwargs.get("head_dim", self.hidden_size // self.num_attention_heads)
+        self.hidden_act = kwargs.get("hidden_act", 'silu')
+        self.intermediate_size = kwargs.get("intermediate_size", math.ceil(hidden_size * math.pi / 64) * 64)
+        self.max_position_embeddings = kwargs.get("max_position_embeddings", 32768)
+        self.rms_norm_eps = kwargs.get("rms_norm_eps", 1e-6)
+        self.rope_theta = kwargs.get("rope_theta", 1e6)
+        self.tie_word_embeddings = kwargs.get("tie_word_embeddings", True)
+        self.inference_rope_scaling = kwargs.get("inference_rope_scaling", False)
+        self.rope_scaling = {
+            "beta_fast": 32,
+            "beta_slow": 1,
+            "factor": 16,
+            "original_max_position_embeddings": 2048,
+            "attention_factor": 1.0,
+            "type": "yarn"
+        } if self.inference_rope_scaling else None
+        ### MoE specific configs (ignored if use_moe = False)
+        self.num_experts = kwargs.get("num_experts", 4)
+        self.num_experts_per_tok = kwargs.get("num_experts_per_tok", 1)
+        self.moe_intermediate_size = kwargs.get("moe_intermediate_size", self.intermediate_size)
+        self.norm_topk_prob = kwargs.get("norm_topk_prob", True)
+        self.router_aux_loss_coef = kwargs.get("router_aux_loss_coef", 5e-4)
+
+# 🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏
+#                                     MiniMind Model
+# 🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏🌎🌍🌏
+class RMSNorm(torch.nn.Module):
+    def __init__(self, dim: int, eps: float = 1e-5):
+        super().__init__()
+        self.eps = eps
+        self.weight = nn.Parameter(torch.ones(dim))
+
+    def norm(self, x):
+        return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps)
+
+    def forward(self, x):
+        return (self.weight * self.norm(x.float())).type_as(x)
+
+def precompute_freqs_cis(dim: int, end: int = int(32 * 1024), rope_base: float = 1e6, rope_scaling: dict = None):
+    freqs, attn_factor = 1.0 / (rope_base ** (torch.arange(0, dim, 2)[: (dim // 2)].float() / dim)), 1.0
+    if rope_scaling is not None: # YaRN: f'(i) = f(i)((1-γ) + γ/s), where γ∈[0,1] is linear ramp
+        orig_max, factor, beta_fast, beta_slow, attn_factor = (
+            rope_scaling.get("original_max_position_embeddings", 2048), rope_scaling.get("factor", 16),
+            rope_scaling.get("beta_fast", 32.0), rope_scaling.get("beta_slow", 1.0), rope_scaling.get("attention_factor", 1.0)
+        )
+        if end / orig_max > 1.0:
+            inv_dim = lambda b: (dim * math.log(orig_max / (b * 2 * math.pi))) / (2 * math.log(rope_base))
+            low, high = max(math.floor(inv_dim(beta_fast)), 0), min(math.ceil(inv_dim(beta_slow)), dim // 2 - 1)
+            ramp = torch.clamp((torch.arange(dim // 2, device=freqs.device).float() - low) / max(high - low, 0.001), 0, 1)
+            freqs = freqs * (1 - ramp + ramp / factor)
+    t = torch.arange(end, device=freqs.device)
+    freqs = torch.outer(t, freqs).float()
+    freqs_cos = torch.cat([torch.cos(freqs), torch.cos(freqs)], dim=-1) * attn_factor
+    freqs_sin = torch.cat([torch.sin(freqs), torch.sin(freqs)], dim=-1) * attn_factor
+    return freqs_cos, freqs_sin
+
+def apply_rotary_pos_emb(q, k, cos, sin, unsqueeze_dim=1):
+    def rotate_half(x): return torch.cat((-x[..., x.shape[-1] // 2:], x[..., : x.shape[-1] // 2]), dim=-1)
+    q_embed = ((q * cos.unsqueeze(unsqueeze_dim)) + (rotate_half(q) * sin.unsqueeze(unsqueeze_dim))).to(q.dtype)
+    k_embed = ((k * cos.unsqueeze(unsqueeze_dim)) + (rotate_half(k) * sin.unsqueeze(unsqueeze_dim))).to(k.dtype)
+    return q_embed, k_embed
+
+def repeat_kv(x: torch.Tensor, n_rep: int) -> torch.Tensor:
+    bs, slen, num_key_value_heads, head_dim = x.shape
+    if n_rep == 1: return x
+    return (x[:, :, :, None, :].expand(bs, slen, num_key_value_heads, n_rep, head_dim).reshape(bs, slen, num_key_value_heads * n_rep, head_dim))
+
+class Attention(nn.Module):
+    def __init__(self, config: MiniMindConfig):
+        super().__init__()
+        self.num_key_value_heads = config.num_attention_heads if config.num_key_value_heads is None else config.num_key_value_heads
+        self.n_local_heads = config.num_attention_heads
+        self.n_local_kv_heads = self.num_key_value_heads
+        self.n_rep = self.n_local_heads // self.n_local_kv_heads
+        self.head_dim = config.head_dim
+        self.is_causal = True
+        self.q_proj = nn.Linear(config.hidden_size, config.num_attention_heads * self.head_dim, bias=False)
+        self.k_proj = nn.Linear(config.hidden_size, self.num_key_value_heads * self.head_dim, bias=False)
+        self.v_proj = nn.Linear(config.hidden_size, self.num_key_value_heads * self.head_dim, bias=False)
+        self.o_proj = nn.Linear(config.num_attention_heads * self.head_dim, config.hidden_size, bias=False)
+        self.q_norm = RMSNorm(self.head_dim, eps=config.rms_norm_eps)
+        self.k_norm = RMSNorm(self.head_dim, eps=config.rms_norm_eps)
+        self.attn_dropout = nn.Dropout(config.dropout)
+        self.resid_dropout = nn.Dropout(config.dropout)
+        self.dropout = config.dropout
+        self.flash = hasattr(torch.nn.functional, 'scaled_dot_product_attention') and config.flash_attn
+
+    def forward(self, x, position_embeddings, past_key_value=None, use_cache=False, attention_mask=None):
+        bsz, seq_len, _ = x.shape
+        xq, xk, xv = self.q_proj(x), self.k_proj(x), self.v_proj(x)
+        xq = xq.view(bsz, seq_len, self.n_local_heads, self.head_dim)
+        xk = xk.view(bsz, seq_len, self.n_local_kv_heads, self.head_dim)
+        xv = xv.view(bsz, seq_len, self.n_local_kv_heads, self.head_dim)
+        xq, xk = self.q_norm(xq), self.k_norm(xk)
+        cos, sin = position_embeddings
+        xq, xk = apply_rotary_pos_emb(xq, xk, cos, sin)
+        if past_key_value is not None:
+            xk = torch.cat([past_key_value[0], xk], dim=1)
+            xv = torch.cat([past_key_value[1], xv], dim=1)
+        past_kv = (xk, xv) if use_cache else None
+        xq, xk, xv = (xq.transpose(1, 2), repeat_kv(xk, self.n_rep).transpose(1, 2), repeat_kv(xv, self.n_rep).transpose(1, 2))
+        if self.flash and (seq_len > 1) and (not self.is_causal or past_key_value is None) and (attention_mask is None or torch.all(attention_mask == 1)):
+            output = F.scaled_dot_product_attention(xq, xk, xv, dropout_p=self.dropout if self.training else 0.0, is_causal=self.is_causal)
+        else:
+            scores = (xq @ xk.transpose(-2, -1)) / math.sqrt(self.head_dim)
+            if self.is_causal: scores[:, :, :, -seq_len:] += torch.full((seq_len, seq_len), float("-inf"), device=scores.device).triu(1)
+            if attention_mask is not None: scores += (1.0 - attention_mask.unsqueeze(1).unsqueeze(2)) * -1e9
+            output = self.attn_dropout(F.softmax(scores.float(), dim=-1).type_as(xq)) @ xv
+        output = output.transpose(1, 2).reshape(bsz, seq_len, -1)
+        output = self.resid_dropout(self.o_proj(output))
+        return output, past_kv
+
+class FeedForward(nn.Module):
+    def __init__(self, config: MiniMindConfig, intermediate_size: int = None):
+        super().__init__()
+        intermediate_size = intermediate_size or config.intermediate_size
+        self.gate_proj = nn.Linear(config.hidden_size, intermediate_size, bias=False)
+        self.down_proj = nn.Linear(intermediate_size, config.hidden_size, bias=False)
+        self.up_proj = nn.Linear(config.hidden_size, intermediate_size, bias=False)
+        self.act_fn = ACT2FN[config.hidden_act]
+
+    def forward(self, x):
+        return self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
+
+class MOEFeedForward(nn.Module):
+    def __init__(self, config: MiniMindConfig):
+        super().__init__()
+        self.config = config
+        self.gate = nn.Linear(config.hidden_size, config.num_experts, bias=False)
+        self.experts = nn.ModuleList([FeedForward(config, intermediate_size=config.moe_intermediate_size) for _ in range(config.num_experts)])
+        self.act_fn = ACT2FN[config.hidden_act]
+
+    def forward(self, x):
+        batch_size, seq_len, hidden_dim = x.shape
+        x_flat = x.view(-1, hidden_dim)
+        scores = F.softmax(self.gate(x_flat), dim=-1)
+        topk_weight, topk_idx = torch.topk(scores, k=self.config.num_experts_per_tok, dim=-1, sorted=False)
+        if self.config.norm_topk_prob: topk_weight = topk_weight / (topk_weight.sum(dim=-1, keepdim=True) + 1e-20)
+        y = torch.zeros_like(x_flat)
+        for i, expert in enumerate(self.experts):
+            mask = (topk_idx == i)
+            if mask.any():
+                token_idx = mask.any(dim=-1).nonzero().flatten()
+                weight = topk_weight[mask].view(-1, 1)
+                y.index_add_(0, token_idx, (expert(x_flat[token_idx]) * weight).to(y.dtype))
+            elif self.training:
+                y[0, 0] += 0 * sum(p.sum() for p in expert.parameters())
+        if self.training and self.config.router_aux_loss_coef > 0:
+            load = F.one_hot(topk_idx, self.config.num_experts).float().mean(0)
+            self.aux_loss = (load * scores.mean(0)).sum() * self.config.num_experts * self.config.router_aux_loss_coef
+        else:
+            self.aux_loss = scores.new_zeros(1).squeeze()
+        return y.view(batch_size, seq_len, hidden_dim)
+
+class MiniMindBlock(nn.Module):
+    def __init__(self, layer_id: int, config: MiniMindConfig):
+        super().__init__()
+        self.self_attn = Attention(config)
+        self.input_layernorm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        self.post_attention_layernorm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        self.mlp = FeedForward(config) if not config.use_moe else MOEFeedForward(config)
+
+    def forward(self, hidden_states, position_embeddings, past_key_value=None, use_cache=False, attention_mask=None):
+        residual = hidden_states
+        hidden_states, present_key_value = self.self_attn(
+            self.input_layernorm(hidden_states), position_embeddings,
+            past_key_value, use_cache, attention_mask
+        )
+        hidden_states += residual
+        hidden_states = hidden_states + self.mlp(self.post_attention_layernorm(hidden_states))
+        return hidden_states, present_key_value
+
+class MiniMindModel(nn.Module):
+    def __init__(self, config: MiniMindConfig):
+        super().__init__()
+        self.config = config
+        self.vocab_size, self.num_hidden_layers = config.vocab_size, config.num_hidden_layers
+        self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size)
+        self.dropout = nn.Dropout(config.dropout)
+        self.layers = nn.ModuleList([MiniMindBlock(l, config) for l in range(self.num_hidden_layers)])
+        self.norm = RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+        freqs_cos, freqs_sin = precompute_freqs_cis(dim=config.head_dim, end=config.max_position_embeddings, rope_base=config.rope_theta, rope_scaling=config.rope_scaling)
+        self.register_buffer("freqs_cos", freqs_cos, persistent=False)
+        self.register_buffer("freqs_sin", freqs_sin, persistent=False)
+
+    def forward(self, input_ids, attention_mask=None, past_key_values=None, use_cache=False, **kwargs):
+        batch_size, seq_length = input_ids.shape
+        if hasattr(past_key_values, 'layers'): past_key_values = None
+        past_key_values = past_key_values or [None] * len(self.layers)
+        start_pos = past_key_values[0][0].shape[1] if past_key_values[0] is not None else 0
+        hidden_states = self.dropout(self.embed_tokens(input_ids))
+        # Recompute RoPE buffers lost during meta-device init (transformers>=5.x)
+        if self.freqs_cos[0, 0] == 0:
+            freqs_cos, freqs_sin = precompute_freqs_cis(dim=self.config.head_dim, end=self.config.max_position_embeddings, rope_base=self.config.rope_theta, rope_scaling=self.config.rope_scaling)
+            self.freqs_cos, self.freqs_sin = freqs_cos.to(hidden_states.device), freqs_sin.to(hidden_states.device)
+        position_embeddings = (self.freqs_cos[start_pos:start_pos + seq_length], self.freqs_sin[start_pos:start_pos + seq_length])
+        presents = []
+        for layer, past_key_value in zip(self.layers, past_key_values):
+            hidden_states, present = layer(
+                hidden_states,
+                position_embeddings,
+                past_key_value=past_key_value,
+                use_cache=use_cache,
+                attention_mask=attention_mask
+            )
+            presents.append(present)
+        hidden_states = self.norm(hidden_states)
+        aux_loss = sum([l.mlp.aux_loss for l in self.layers if isinstance(l.mlp, MOEFeedForward)], hidden_states.new_zeros(1).squeeze())
+        return hidden_states, presents, aux_loss
+
+class MiniMindForCausalLM(PreTrainedModel, GenerationMixin):
+    config_class = MiniMindConfig
+    _tied_weights_keys = {"lm_head.weight": "model.embed_tokens.weight"}
+    def __init__(self, config: MiniMindConfig = None):
+        self.config = config or MiniMindConfig()
+        super().__init__(self.config)
+        self.model = MiniMindModel(self.config)
+        self.lm_head = nn.Linear(self.config.hidden_size, self.config.vocab_size, bias=False)
+        if self.config.tie_word_embeddings: self.model.embed_tokens.weight = self.lm_head.weight
+        self.post_init()
+
+    def forward(self, input_ids, attention_mask=None, past_key_values=None, use_cache=False, logits_to_keep=0, labels=None, **kwargs):
+        hidden_states, past_key_values, aux_loss = self.model(input_ids, attention_mask, past_key_values, use_cache, **kwargs)
+        slice_indices = slice(-logits_to_keep, None) if isinstance(logits_to_keep, int) else logits_to_keep
+        logits = self.lm_head(hidden_states[:, slice_indices, :])
+        loss = None
+        if labels is not None:
+            x, y = logits[..., :-1, :].contiguous(), labels[..., 1:].contiguous()
+            loss = F.cross_entropy(x.view(-1, x.size(-1)), y.view(-1), ignore_index=-100)
+        return MoeCausalLMOutputWithPast(loss=loss, aux_loss=aux_loss, logits=logits, past_key_values=past_key_values, hidden_states=hidden_states)
+    
+    # https://github.com/jingyaogong/minimind/discussions/611
+    @torch.inference_mode()
+    def generate(self, inputs=None, attention_mask=None, max_new_tokens=8192, temperature=0.85, top_p=0.85, top_k=50, eos_token_id=2, streamer=None, use_cache=True, num_return_sequences=1, do_sample=True, repetition_penalty=1.0, **kwargs):
+        input_ids = kwargs.pop("input_ids", inputs).repeat(num_return_sequences, 1)
+        attention_mask = attention_mask.repeat(num_return_sequences, 1) if attention_mask is not None else None
+        past_key_values = kwargs.pop("past_key_values", None)
+        finished = torch.zeros(input_ids.shape[0], dtype=torch.bool, device=input_ids.device)
+        if streamer: streamer.put(input_ids.cpu())
+        for _ in range(max_new_tokens):
+            past_len = past_key_values[0][0].shape[1] if past_key_values else 0
+            outputs = self.forward(input_ids[:, past_len:], attention_mask, past_key_values, use_cache=use_cache, **kwargs)
+            attention_mask = torch.cat([attention_mask, attention_mask.new_ones(attention_mask.shape[0], 1)], -1) if attention_mask is not None else None
+            logits = outputs.logits[:, -1, :] / temperature
+            if repetition_penalty != 1.0:
+                for i in range(input_ids.shape[0]):
+                    seen = torch.unique(input_ids[i]); score = logits[i, seen]; logits[i, seen] = torch.where(score > 0, score / repetition_penalty, score * repetition_penalty)
+            if top_k > 0: 
+                logits[logits < torch.topk(logits, top_k)[0][..., -1, None]] = -float('inf')
+            if top_p < 1.0:
+                sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+                mask = torch.cumsum(torch.softmax(sorted_logits, dim=-1), dim=-1) > top_p
+                mask[..., 1:], mask[..., 0] = mask[..., :-1].clone(), 0
+                logits[mask.scatter(1, sorted_indices, mask)] = -float('inf')
+            next_token = torch.multinomial(torch.softmax(logits, dim=-1), num_samples=1) if do_sample else torch.argmax(logits, dim=-1, keepdim=True)
+            if eos_token_id is not None: next_token = torch.where(finished.unsqueeze(-1), next_token.new_full((next_token.shape[0], 1), eos_token_id), next_token)
+            input_ids = torch.cat([input_ids, next_token], dim=-1)
+"""
+训练工具函数集合
+"""
+import os
+import sys
+__package__ = "trainer"
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import random
+import math
+import numpy as np
+import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel
+from torch.utils.data import Sampler
+from transformers import AutoTokenizer, AutoModel, AutoModelForSequenceClassification
+from model.model_minimind import MiniMindForCausalLM
+
+def get_model_params(model, config):
+    total = sum(p.numel() for p in model.parameters()) / 1e6
+    n_routed = getattr(config, 'n_routed_experts', getattr(config, 'num_experts', 0))
+    n_active = getattr(config, 'num_experts_per_tok', 0)
+    n_shared = getattr(config, 'n_shared_experts', 0)
+    expert = sum(p.numel() for n, p in model.named_parameters() if 'mlp.experts.0.' in n) / 1e6
+    shared_expert = sum(p.numel() for n, p in model.named_parameters() if 'mlp.shared_experts.0.' in n) / 1e6
+    base = total - (expert * n_routed) - (shared_expert * n_shared)
+    active = base + (expert * n_active) + (shared_expert * n_shared)
+    if active < total: Logger(f'Model Params: {total:.2f}M-A{active:.2f}M')
+    else: Logger(f'Model Params: {total:.2f}M')
+
+
+def is_main_process():
+    return not dist.is_initialized() or dist.get_rank() == 0
+
+
+def Logger(content):
+    if is_main_process():
+        print(content)
+
+
+def get_lr(current_step, total_steps, lr):
+    return lr*(0.1 + 0.45*(1 + math.cos(math.pi * current_step / total_steps)))
+
+
+def init_distributed_mode():
+    if int(os.environ.get("RANK", -1)) == -1:
+        return 0  # 非DDP模式
+
+    dist.init_process_group(backend="nccl")
+    local_rank = int(os.environ["LOCAL_RANK"])
+    torch.cuda.set_device(local_rank)
+    return local_rank
+
+
+def setup_seed(seed: int):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+def lm_checkpoint(lm_config, weight='full_sft', model=None, optimizer=None, epoch=0, step=0, wandb=None, save_dir='../checkpoints', **kwargs):
+    os.makedirs(save_dir, exist_ok=True)
+    moe_path = '_moe' if lm_config.use_moe else ''
+    ckp_path = f'{save_dir}/{weight}_{lm_config.hidden_size}{moe_path}.pth'
+    resume_path = f'{save_dir}/{weight}_{lm_config.hidden_size}{moe_path}_resume.pth'
+
+    if model is not None:
+        raw_model = model.module if isinstance(model, DistributedDataParallel) else model
+        raw_model = getattr(raw_model, '_orig_mod', raw_model)
+        state_dict = raw_model.state_dict()
+        state_dict = {k: v.half().cpu() for k, v in state_dict.items()}
+        ckp_tmp = ckp_path + '.tmp'
+        torch.save(state_dict, ckp_tmp)
+        os.replace(ckp_tmp, ckp_path)
+        wandb_id = None
+        if wandb:
+            if hasattr(wandb, 'get_run'):
+                run = wandb.get_run()
+                wandb_id = getattr(run, 'id', None) if run else None
+            else:
+                wandb_id = getattr(wandb, 'id', None)
+
+        resume_data = {
+            'model': state_dict,
+            'optimizer': optimizer.state_dict(),
+            'epoch': epoch,
+            'step': step,
+            'world_size': dist.get_world_size() if dist.is_initialized() else 1,
+            'wandb_id': wandb_id
+        }
+        for key, value in kwargs.items():
+            if value is not None:
+                if hasattr(value, 'state_dict'):
+                    raw_value = value.module if isinstance(value, DistributedDataParallel) else value
+                    raw_value = getattr(raw_value, '_orig_mod', raw_value)
+                    resume_data[key] = raw_value.state_dict()
+                else:
+                    resume_data[key] = value
+
+        resume_tmp = resume_path + '.tmp'
+        torch.save(resume_data, resume_tmp)
+        os.replace(resume_tmp, resume_path)
+        del state_dict, resume_data
+        torch.cuda.empty_cache()
+    else:  # 加载模式
+        if os.path.exists(resume_path):
+            ckp_data = torch.load(resume_path, map_location='cpu')
+            saved_ws = ckp_data.get('world_size', 1)
+            current_ws = dist.get_world_size() if dist.is_initialized() else 1
+            if saved_ws != current_ws:
+                ckp_data['step'] = ckp_data['step'] * saved_ws // current_ws
+                Logger(f'GPU数量变化({saved_ws}→{current_ws})，step已自动转换为{ckp_data["step"]}')
+            return ckp_data
+        return None
+
+
+def init_model(lm_config, from_weight='pretrain', tokenizer_path='../model', save_dir='../out', device='cuda'):
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
+    model = MiniMindForCausalLM(lm_config)
+
+    if from_weight!= 'none':
+        moe_suffix = '_moe' if lm_config.use_moe else ''
+        weight_path = f'{save_dir}/{from_weight}_{lm_config.hidden_size}{moe_suffix}.pth'
+        weights = torch.load(weight_path, map_location=device)
+        model.load_state_dict(weights, strict=False)
+
+    get_model_params(model, lm_config)
+    Logger(f'Trainable Params: {sum(p.numel() for p in model.parameters() if p.requires_grad) / 1e6:.3f}M')
+    return model.to(device), tokenizer
+
+
+class SkipBatchSampler(Sampler):
+    def __init__(self, sampler, batch_size, skip_batches=0):
+        self.sampler = sampler
+        self.batch_size = batch_size
+        self.skip_batches = skip_batches
+
+    def __iter__(self):
+        batch = []
+        skipped = 0
+        for idx in self.sampler:
+            batch.append(idx)
+            if len(batch) == self.batch_size:
+                if skipped < self.skip_batches:
+                    skipped += 1
+                    batch = []
+                    continue
+                yield batch
+                batch = []
+        if len(batch) > 0 and skipped >= self.skip_batches:
+            yield batch
+
+    def __len__(self):
+        total_batches = (len(self.sampler) + self.batch_size - 1) // self.batch_size
+        return max(0, total_batches - self.skip_batches)
+
+
+class LMForRewardModel:
+    def __init__(self, model_path, device="cuda", dtype=torch.float16):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        self.model = AutoModel.from_pretrained(model_path, torch_dtype=dtype, trust_remote_code=True)
+        self.model = self.model.to(device).eval()
+        self.device = device
+
+    @torch.no_grad()
+    def get_score(self, messages, response):
+        history_text = "\n".join([f"{m['role']}: {m['content']}" for m in messages[:-1]])
+        last_query = messages[-1]['content'] if messages else ""
+        message_context = f"{history_text}\n以上是对话历史。我的新问题是：\n{last_query}" if history_text else last_query
+        eval_messages = [
+            {"role": "user", "content": message_context},
+            {"role": "assistant", "content": response}
+        ]
+        score = self.model.get_score(self.tokenizer, eval_messages)
+        return max(min(score, 3.0), -3.0)datasets==3.6.0
+datasketch==1.6.4
+Flask==3.0.3
+Flask_Cors==4.0.0
+jieba==0.42.1
+jsonlines==4.0.0
+marshmallow==3.22.0
+# matplotlib==3.10.0
+ngrok==1.4.0
+nltk==3.8
+numpy==1.26.4
+openai==1.59.6
+# peft==0.7.1
+psutil==5.9.8
+pydantic==2.11.5
+rich==13.7.1
+scikit_learn==1.5.1
+sentence_transformers==2.3.1
+simhash==2.1.2
+tiktoken==0.10.0
+transformers==4.57.6
+jinja2==3.1.2
+jsonlines==4.0.0
+trl==0.13.0
+ujson==5.1.0
+wandb==0.18.3
+streamlit==1.50.0
+einops==0.8.1
+swanlab==0.7.11
+modelscope==1.37.0
+# torch==2.6.0
+# torchvision==0.21.0512eed0b6556e741d80864f054d45d271459772a
+[fix] robustness
+2026-06-28T18:03:34+08:00
+exit_code=0

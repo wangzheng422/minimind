@@ -1,0 +1,7 @@
+f340cde681ebdf30e5c629e12e69442422a22f36dbe5ca102bb8187c2d8e5f69  colab/minimind_colab.py
+978fd9080b1cbc127a4f6ee9d65fd7aea36637a7874178648144ac91042a52d9  colab/minimind_colab_learning.ipynb
+a71d529760e2cb3604925e9378098822e9d1a44dc0efa18f0c7f5080a5add2e9  colab/README.md
+   22526 colab/minimind_colab.py
+    6900 colab/minimind_colab_learning.ipynb
+    2451 colab/README.md
+   31877 total

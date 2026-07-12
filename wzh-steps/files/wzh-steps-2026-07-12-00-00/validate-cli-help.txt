@@ -1,0 +1,32 @@
+usage: minimind_colab.py [-h] [--root ROOT] [--venv VENV]
+                         {setup,preflight,download,make-micro,lesson,one-step,train,infer,backup}
+                         ...
+
+Step-by-step Google Colab runner for the MiniMind learning path. Run this from
+the repository root or pass --root explicitly. The runner uses the
+repository's existing trainer and model code; it does not fork training logic
+into a second implementation.
+
+positional arguments:
+  {setup,preflight,download,make-micro,lesson,one-step,train,infer,backup}
+    setup               Create a Colab venv that reuses the installed CUDA
+                        PyTorch, then install project dependencies
+    preflight           Print GPU, BF16, RAM, and disk checks
+    download            Download the recommended mini datasets from Hugging
+                        Face
+    make-micro          Stream a small learning dataset from the mini JSONL
+                        files
+    lesson              Inspect tokenizer, model tensors, and loss masks
+    one-step            Run one real forward/backward/AdamW update and report
+                        the metrics
+    train               Run the repository's native training scripts
+    infer               Run a single non-interactive generation from a trained
+                        local weight
+    backup              Incrementally copy checkpoints and outputs to a
+                        mounted Google Drive directory
+
+options:
+  -h, --help            show this help message and exit
+  --root ROOT           MiniMind repository root; defaults to this file's
+                        parent repository
+  --venv VENV           Virtual environment path used by setup

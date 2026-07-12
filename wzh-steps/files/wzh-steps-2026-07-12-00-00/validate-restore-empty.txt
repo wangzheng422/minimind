@@ -1,0 +1,1 @@
+{"restore": "/private/tmp/minimind-colab-empty/minimind-colab", "files_copied": 0, "status": "no saved state"}

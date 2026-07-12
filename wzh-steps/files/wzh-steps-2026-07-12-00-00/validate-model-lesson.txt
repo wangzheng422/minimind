@@ -1,0 +1,19 @@
+{
+  "profile": "micro",
+  "input_ids_shape": [
+    1,
+    8
+  ],
+  "embedding_shape": [
+    1,
+    8,
+    256
+  ],
+  "logits_shape": [
+    1,
+    8,
+    6400
+  ],
+  "parameters": 4983296,
+  "embedding_and_lm_head_share_storage": true
+}
