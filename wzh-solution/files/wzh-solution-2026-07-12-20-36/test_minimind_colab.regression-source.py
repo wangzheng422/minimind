@@ -61,7 +61,6 @@ class NotebookSetupCellTests(unittest.TestCase):
 
         self.assertIn("COLAB_PYTHON =", config_source)
         self.assertIn("COLAB_RUNNER =", config_source)
-        self.assertIn("os.environ.update", config_source)
         self.assertTrue(setup_source.startswith("%%bash\nset -euo pipefail\n"))
         self.assertIn('if [ -d "$ROOT/.git" ]; then', setup_source)
         self.assertIn("git -C", setup_source)

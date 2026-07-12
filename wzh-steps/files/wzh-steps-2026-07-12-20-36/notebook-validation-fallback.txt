@@ -1,0 +1,2 @@
+notebook_schema=ok code_cells=9 python_syntax=ok bash_structure=ok outputs_clean=ok multiline_bash=ok max_line=67
+exit_code=0

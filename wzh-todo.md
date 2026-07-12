@@ -31,3 +31,12 @@
 - DONE Review the final diff and address fail-fast and audit-accuracy findings.
 - DONE Commit the verified round 4 changes automatically.
 - DONE Preserve the supplied notebook output and complete round 4 evidence.
+
+## round 5
+
+- DONE Add regression coverage for a readable multi-line CLI setup cell.
+- DONE Replace the one-line shell expression with formatted fail-fast Bash.
+- DONE Run focused tests and validate Python/Bash notebook structure.
+- DONE Review the final diff and resolve the audit-completeness finding.
+- DONE Commit the verified round 5 changes automatically.
+- DONE Preserve complete round 5 evidence and final artifacts.
